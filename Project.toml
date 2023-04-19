@@ -1,0 +1,13 @@
+name = "PhysiologyPlotting"
+uuid = "d5a2a81f-3167-4eb5-8f67-b1ebe6a4430d"
+authors = ["Matthew Tarchick"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
