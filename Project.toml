@@ -12,6 +12,7 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 [compat]
 ElectroPhysiology = "0.3"
 Plots = "1"
+PyCall = "1"
 PyPlot = "2"
 julia = "1"
 
