@@ -5,9 +5,7 @@ import ElectroPhysiology: Experiment, readABF, parseABF
 
 using PyCall
 ENV["PYTHON"] = ""
-using Pkg; Pkg.build("PyCall")
-
-
+#using Pkg; Pkg.build("PyCall")
 
 using Plots, PyPlot
 
