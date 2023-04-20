@@ -1,3 +1,4 @@
+using ElectroPhysiology
 using PhysiologyPlotting
 using Test
 
