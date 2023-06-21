@@ -10,28 +10,33 @@ end
 
 function plot_experiment(axis::T, exp::Experiment;
     channels=1, sweeps = :all, 
-    axes=true, yaxes=true, xaxes=true, #Change this, this is confusing
+    yaxes=true, xaxes=true, #Change this, this is confusing
     xlims = nothing, ylims = nothing,
     color = :black, cvals = nothing, clims = (0.0, 1.0), #still want to figure out how this wil work
     ylabel = nothing, xlabel = nothing,
+    linewidth = 1.0, 
     kwargs...
 ) where T
     dataX, dataY = plot_prep(exp; channels=channels, sweeps = sweeps)
     if is_cmap(color)
+        if isnothing(cvals)
+            sweeps_idxs = axes(dataY, 2) |> collect
+            cvals = sweeps_idxs./size(dataY, 2) #Normalize the data
+        end
         cmapI = plt.get_cmap(color)
-        for (idx, swp) in enumerate(axes(dataY, 2))
-            axis.plot(dataX, dataY[:, swp], c = cmapI(idx/size(dataY,2)), kwargs...)
+        for (swp, cval) in enumerate(cvals)
+            axis.plot(dataX, dataY[:, swp], c = cmapI(cval), linewidth = linewidth, kwargs...)
         end
     else
         axis.plot(dataX, dataY; c = color, kwargs...)
     end
     axis.spines["top"].set_visible(false)
     axis.spines["right"].set_visible(false)
-    if !(yaxes) || !(axes)
+    if !(yaxes)
         axis.spines["left"].set_visible(false)
         axis.yaxis.set_visible(false)
     end
-    if !(xaxes) || !(axes)
+    if !(xaxes)
         axis.spines["bottom"].set_visible(false) #We want the spine to fully
         axis.xaxis.set_visible(false)
     end
@@ -73,15 +78,15 @@ function plot_experiment(exp::Experiment; layout = nothing, channels = nothing, 
     if !isnothing(layout)
         plot_layout = layout
     elseif !isnothing(channels)
-        if isa(channels, Vector{Int64})
+        if isa(channels, Vector{Int64}) || isa(channels, Vector{String})
             plot_layout = (length(channels))
-        elseif isa(channels, Int64)
+        elseif isa(channels, Int64) || isa(channels, String)
             plot_layout = 1
         end
     else
         plot_layout = (size(exp, 3))
     end
-    #println(plot_layout)
+    println(plot_layout)
     fig, axis = plt.subplots(plot_layout)
     if plot_layout == 1 || plot_layout == (1)
         plot_experiment(axis, exp::Experiment; channels=1, kwargs...)
