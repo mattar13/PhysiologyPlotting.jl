@@ -2,6 +2,7 @@ module PhysiologyPlotting
 
 using ElectroPhysiology
 import ElectroPhysiology: Experiment, readABF, parseABF
+using DataFrames, Query
 
 using PyCall
 ENV["PYTHON"] = ""
@@ -15,6 +16,11 @@ include("utilities.jl")
 # Include all of the PyPlot functions
 include("PhysPyPlot.jl")
 export plot_experiment
+
+println("Dataframes loaded")
+include("DatasheetPlotting.jl")
+export plot_data_summary
+
 
 #=
 # Write your package code here.
