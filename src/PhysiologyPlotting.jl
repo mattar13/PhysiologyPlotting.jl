@@ -7,8 +7,11 @@ using DataFrames, Query
 using PyCall
 ENV["PYTHON"] = ""
 #using Pkg; Pkg.build("PyCall")
+#using Plots
+#println(Plots) 
 
-using Plots, PyPlot
+using PyPlot
+println(PyPlot)
 
 # Include all the plotting utilities
 include("utilities.jl")
