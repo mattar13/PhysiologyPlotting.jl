@@ -6,7 +6,8 @@ using DataFrames, Query
 
 using PyCall
 ENV["PYTHON"] = ""
-#using Pkg; Pkg.build("PyCall")
+println("Building PyCall from Python version")
+using Pkg; Pkg.build("PyCall")
 #using Plots
 #println(Plots) 
 
