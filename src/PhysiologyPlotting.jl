@@ -4,6 +4,8 @@ using ElectroPhysiology
 import ElectroPhysiology: Experiment, readABF, parseABF
 using DataFrames, Query
 
+backend = :PyPlot
+
 using PyCall
 #ENV["PYTHON"] = ""
 #println("Building PyCall from Python version")
