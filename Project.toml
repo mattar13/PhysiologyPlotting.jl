@@ -16,6 +16,7 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 CairoMakie = "0.10"
+Conda = "1"
 DataFrames = "1"
 ElectroPhysiology = "0.4"
 PyCall = "1"
