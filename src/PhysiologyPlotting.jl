@@ -5,9 +5,9 @@ import ElectroPhysiology: Experiment, readABF, parseABF
 using DataFrames, Query
 
 using PyCall
-ENV["PYTHON"] = ""
-println("Building PyCall from Python version")
-using Pkg; Pkg.build("PyCall")
+#ENV["PYTHON"] = ""
+#println("Building PyCall from Python version")
+#using Pkg; Pkg.build("PyCall")
 #using Plots
 #println(Plots) 
 
@@ -18,11 +18,14 @@ println(PyPlot)
 include("utilities.jl")
 
 # Include all of the PyPlot functions
-include("PhysPyPlot.jl")
-export plot_experiment
+include("PhysPyPlot/PhysPyPlot.jl")
+export plot_experiment 
+
+include("PhysPyPlot/PlottingAddons.jl")
+export add_scalebar, add_sig_bar
 
 println("Dataframes loaded")
-include("DatasheetPlotting.jl")
+include("PhysPyPlot/DatasheetPlotting.jl")
 export plot_data_summary
 
 
