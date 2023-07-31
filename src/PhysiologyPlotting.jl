@@ -19,7 +19,7 @@ include("utilities.jl")
 
 # Include all of the PyPlot functions
 include("PhysPyPlot/PhysPyPlot.jl")
-export plot_experiment 
+export plot_experiment, waveplot 
 
 include("PhysPyPlot/PlottingAddons.jl")
 export add_scalebar, add_sig_bar
