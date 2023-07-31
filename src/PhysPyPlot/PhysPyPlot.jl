@@ -107,8 +107,9 @@ function plot_experiment(exp::Experiment; layout = nothing, channels = nothing, 
     end
 end
 
-function waveplot(exp::Experiment)
-
-
-
+function waveplot(axis, exp::Experiment; spacing = 100)
+    for (idx, trial) in enumerate(eachtrial(exp))
+        data_trial = trial + ((idx-1) * spacing)
+        plot_experiment(axis, data_trial)
+    end
 end
