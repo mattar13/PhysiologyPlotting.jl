@@ -36,3 +36,15 @@ function plot_prep(exp::Experiment; channels=1, sweeps = :all)
           return (exp.t, exp.data_array[sweeps, :, channels]')
      end
 end
+
+function sig_level(p)
+     if 0.01 < p <= 0.05
+          return "*"
+     elseif 0.001 < p <= 0.01
+          return "**"
+     elseif p <= 0.001
+          return "***"
+     else
+          return "n.s"
+     end
+end
