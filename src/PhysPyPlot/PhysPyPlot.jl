@@ -107,9 +107,16 @@ function plot_experiment(exp::Experiment; layout = nothing, channels = nothing, 
     end
 end
 
-function waveplot(axis, exp::Experiment; spacing = 100)
+function waveplot(axis, exp::Experiment; spacing = 100, color = :black, cvals = nothing, kwargs...)
+    sweep_size = size(exp,1)
     for (idx, trial) in enumerate(eachtrial(exp))
         data_trial = trial + ((idx-1) * spacing)
-        plot_experiment(axis, data_trial)
+        if !is_cmap(color)
+            plot_experiment(axis, data_trial; color = color, kwargs...)
+        elseif isnothing(cvals)
+            plot_experiment(axis, data_trial; color = color, cvals = [idx/sweep_size], kwargs...)
+        else
+            plot_experiment(axis, data_trial; color = color, cvals = [cvals[idx]], kwargs...)
+        end
     end
 end
