@@ -37,12 +37,14 @@ function __init__()
           frontend = :CairoMakie
           using CairoMakie
           include("PhysMakie/makie_plot.jl")
+          export draw_circle, draw_arrow_with_text
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
           frontend = :GLMakie
           using GLMakie
           include("PhysMakie/makie_plot.jl")
+          export draw_circle, draw_arrow_with_text
      end
 
      @require PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee" begin
