@@ -6,12 +6,12 @@ function plot_experiment(ax, EXP::Experiment; kwargs...)
                y = trial.data_array[1, :, 1]
                #println(y)
                lin_ax = lines!(ax, x, y; kwargs...)
-               push!(lines_arr, lin_ax)
+               push!(line_arr, lin_ax)
           end
      end
-     return line_arr
-
+     
      #here are some settings
      hidespines!(ax, :t, :r)
      hidedecorations!(ax, grid = true, ticks = false, ticklabels = false)
+     return line_arr
 end
