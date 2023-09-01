@@ -120,3 +120,49 @@ function waveplot(axis, exp::Experiment; spacing = 100, color = :black, cvals = 
         end
     end
 end
+
+function default_violin(ax, x::Int64, yvals::Vector; color = :black, alpha = 0.3, plot_jitter = true, s = 15.0, kwargs...)
+    vp = ax.violinplot(yvals, [x]; showmeans = true, kwargs...)
+    for pc in vp["bodies"]
+         pc.set_facecolor(color)
+         pc.set_edgecolor("black")
+         pc.set_alpha(alpha)
+    end
+    vp["cbars"].set(colors = color)
+    vp["cmeans"].set(colors = color)
+    vp["cmins"].set(colors = color)
+    vp["cmaxes"].set(colors = color)
+    if plot_jitter
+        # Extract the density values from the violin plot
+        body = vp["bodies"][1]
+        paths = body.get_paths()[1]
+        vertices = paths.vertices
+        x_values = vertices[:, 1]
+        y_values = vertices[:, 2]
+        
+        # Generate jittered x-values for scatter points based on the violin plot density
+        xs = map(y -> begin
+            # Find the index of the y-value in the violin plot that is closest to the current y-value
+            idx = argmin(abs.(y_values .- y))
+            
+            # Get the x-value (density) at that index from the violin plot
+            x_jitter = x_values[idx]
+            
+            # Calculate the jittered x-value:
+            # 1. (x_jitter - x): Distance from the center of the violin to the edge at this y-value
+            # 2. (rand() - 0.5): Random factor for jitter, ranges from -0.5 to 0.5
+            # 3. * 2: Amplifies the jitter to make it more noticeable
+            x + (x_jitter - x) * (rand() - 0.5) * 2  # Calculate and scale the jitter
+        end, yvals)
+        
+        ax.scatter(xs, yvals, color = color, s = s)
+    end
+    return vp
+end
+
+function default_violin(ax, x::Union{UnitRange, Vector}, yvals::Matrix; kwargs...)
+    for (i, val) in enumerate(x)
+        default_violin(ax, val, yvals[:, i])
+    end
+end
+

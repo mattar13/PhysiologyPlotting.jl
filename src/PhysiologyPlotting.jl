@@ -6,6 +6,7 @@ using Requires
 using ElectroPhysiology
 import ElectroPhysiology: Experiment, readABF, parseABF
 using DataFrames, Query
+using Distributions, Statistics
 
 frontend = :None
 
@@ -51,7 +52,7 @@ function __init__()
           frontend = :PyPlot
           # Include all of the PyPlot functions
           include("PhysPyPlot/pyplot_plot.jl")
-          export plot_experiment, waveplot 
+          export plot_experiment, waveplot , default_violin
 
           @require DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0" begin
                include("PhysPyPlot/datasheet_plot.jl")
