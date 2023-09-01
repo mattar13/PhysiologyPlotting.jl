@@ -50,6 +50,7 @@ function __init__()
 
      @require PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee" begin
           frontend = :PyPlot
+          using PyPlot
           # Include all of the PyPlot functions
           include("PhysPyPlot/pyplot_plot.jl")
           export plot_experiment, waveplot , default_violin
