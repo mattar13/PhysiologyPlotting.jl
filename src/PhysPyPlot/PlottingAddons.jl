@@ -89,4 +89,15 @@ function add_border(ax; c = :black, xpad_ratio = 0.2, ypad_ratio = 0.2)
     recA = plt.Rectangle((x1, y1), dx, dy, fill=false, lw=2.5, clip_on = false, color = c)
     ax.add_patch(recA)
 end
+
+function draw_axes_border(ax; lw = 2.5, color = :black)
+    for location in ["left", "right", "top", "bottom"]
+         ax.spines[location].set_visible(true)
+         ax.spines[location].set_linewidth(lw)
+         ax.spines[location].set_color(color)
+    end
+    ax.yaxis.set_visible(false)
+    ax.xaxis.set_visible(false)
+end
+
 #==#
