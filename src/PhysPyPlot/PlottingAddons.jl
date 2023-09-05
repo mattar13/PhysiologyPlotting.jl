@@ -72,21 +72,21 @@ function add_sig_bar(axis, xs::Vector{T}, ys::Vector{T}; kwargs...) where T <: R
     end
 end
 
-#= function is not working well
-function add_border(ax; c = :black, lower_left = (0.5, 0.3), width = 0.2, height = 0.2)
-    xmin, xmax, ymin, ymax = ax_lims = ax.axis()
-    xrng = abs(xmin) + abs(xmax)
-    yrng = abs(ymin) + abs(ymax)
-    #println(xrng)
-    #println(yrng)
-    x = xmin - xrng*lower_left[1]
-    y = ymin - yrng*lower_left[2]
-    dX = xrng*width
-    dY = yrng*height
-    #println(ax_lims)
-    #println("($x, $(x + dX), $y, $(y + dY)")
+#==# 
+#function is not working well
+function add_border(ax; c = :black, xpad_ratio = 0.2, ypad_ratio = 0.2)
+    xmin, xmax, ymin, ymax = ax.axis()
 
-    recA = Rectangle((x,y), xrng+dX, yrng+dY, fill=false,lw=2.5, clip_on = false, color = c)
+    xrng = xmax - xmin
+    yrng = ymax - ymin
+    xpad = xpad_ratio*xrng
+    ypad = ypad_ratio*yrng
+    println(xpad) 
+    x1 = xmin - xpad_ratio
+    y1 = ymin - ypad_ratio
+    dx = xpad*2 + xrng
+    dy = ypad*2 + yrng
+    recA = plt.Rectangle((x1, y1), dx, dy, fill=false, lw=2.5, clip_on = false, color = c)
     ax.add_patch(recA)
 end
-=#
+#==#
