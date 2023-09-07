@@ -100,4 +100,47 @@ function draw_axes_border(ax; lw = 2.5, color = :black)
     ax.xaxis.set_visible(false)
 end
 
+"""
+This function draws a bordered box in the data with a gradient. Useful for some figures
+"""
+function draw_gradient_box(ax, xy, dxy; 
+     color = "Greys", cmin = 0.0, cmax = 1.0, n_steps = 100, 
+     cspace = nothing, #this is a range
+     fontcolor = "white", fontsize = 7, text = "default", fontweight="bold",
+     lw = 2.5
+)
+     x,y = xy
+     width, height = dxy
+
+     xmin, xmax, ymin, ymax = plt.axis()
+     ymin_unit = (y - ymin) / (ymax - ymin)
+     ymax_unit = (y+height - ymin) / (ymax - ymin)
+     
+     if isnothing(cspace)
+          try
+               cmap = plt.get_cmap(color)
+               for (i, c) in enumerate(LinRange(cmin, cmax, n_steps))  # Increased number of steps for smoother gradient
+                    #This means that the ymin and ymax will refer to ratios of the ymin and ymax
+                    ax.axvspan(x + (i - 1)*width/n_steps, x + i*width/n_steps, ymin=ymin_unit, ymax=ymax_unit, color=cmap(c), zorder=3)
+               end
+          catch
+               for (i, c) in enumerate(LinRange(0, 1, n_steps))  # Increased number of steps for smoother gradient
+                    #This means that the ymin and ymax will refer to ratios of the ymin and ymax
+                    ax.axvspan(x + (i - 1)*width/n_steps, x + i*width/n_steps, ymin=ymin_unit, ymax=ymax_unit, color=color, zorder=3)
+               end
+          end
+     else
+          cmap = plt.get_cmap(color)
+          for (i, c) in enumerate(cspace)  # Increased number of steps for smoother gradient
+               #This means that the ymin and ymax will refer to ratios of the ymin and ymax
+               ax.axvspan(x + (i - 1)*width/n_steps, x + i*width/n_steps, ymin=ymin_unit, ymax=ymax_unit, color=cmap(c), zorder=3)
+          end
+
+     end
+     
+     gradient_box = plt.Rectangle(xy, width, height, linewidth=lw, edgecolor="black", facecolor="none", zorder=4)
+     ax.add_patch(gradient_box)
+     ax.text(x+(width/2), y+height/2, text, color = fontcolor, fontsize = fontsize, weight = fontweight, va="center", ha = "center", zorder = 5)
+end
+
 #==#

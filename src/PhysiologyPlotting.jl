@@ -62,6 +62,7 @@ function __init__()
 
           include("PhysPyPlot/PlottingAddons.jl")
           export add_scalebar, add_sig_bar, add_border
+          export draw_gradient_box
      end
 end
 
