@@ -12,3 +12,6 @@
 
 [GHA-img]: https://github.com/mattar13/PhysiologyPlotting.jl/workflows/CI/badge.svg
 [GHA-url]: https://github.com/mattar13/PhysiologyPlotting.jl/actions?query=workflows/CI
+
+This is the plotting toolkit for the larger package ElectroPhysiology.jl
+see documentation [here](https://github.com/mattar13/ElectroPhysiology.jl)
