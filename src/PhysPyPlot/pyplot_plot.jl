@@ -1,4 +1,18 @@
-#We need an auxillary function 
+"""
+    is_cmap(color::Any)
+
+Check if the given `color` is a valid colormap.
+
+# Arguments
+- `color`: The color or colormap to check.
+
+# Returns
+- `true` if `color` is a valid colormap, `false` otherwise.
+
+# Examples
+```julia
+is_valid = is_cmap("viridis")
+"""
 function is_cmap(color)
     try
         plt.get_cmap(color)
@@ -8,6 +22,44 @@ function is_cmap(color)
     end
 end
 
+
+"""
+    plot_experiment(axis::T, exp::Experiment; kwargs...)
+    plot_experiment(axis::Vector{T}, exp::Experiment; kwargs...)
+    plot_experiment(exp::Experiment; kwargs...)
+
+Plot the experiment data on the given axis or axes.
+
+# Arguments
+- `axis`: A single axis or a vector of axes to plot on.
+- `exp`: The `Experiment` object containing the data.
+
+#Keyword Arguments
+- `channels` DEFAULT[1]: The channels to be plotted 
+- `sweeps` DEFAULT[:all]: The sweeps to be plotted
+- `yaxes` DEFAULT[true]: Whether or not the yaxes should be plotted 
+- `xaxes` DEFAULT[true]: Wether or not the xaxes should be plotted
+- `xlims` DEFAULT[nothing] 
+- `ylims` DEFAULT[nothing]
+- `color` DEFAULT[:black] 
+- `cvals` DEFAULT[nothing] 
+- `clims` DEFAULT[(0.0, 1.0)]
+- `ylabel` DEFAULT[nothing] 
+- `xlabel` DEFAULT[nothing]
+- `linewidth` DEFAULT[1.0]
+
+- `kwargs`: These are keyword arguments common to PyPlot.jl. 
+    Please see: https://github.com/JuliaPy/PyPlot.jl or https://matplotlib.org/stable/index.html
+    for further documentation
+
+
+# Returns
+- The plot object.
+
+# Examples
+```julia
+plot_experiment(axis, my_experiment; channels=1, sweeps=:all)
+"""
 function plot_experiment(axis::T, exp::Experiment;
     channels=1, sweeps = :all, 
     yaxes=true, xaxes=true, #Change this, this is confusing
@@ -107,6 +159,24 @@ function plot_experiment(exp::Experiment; layout = nothing, channels = nothing, 
     end
 end
 
+"""
+    waveplot(axis, exp::Experiment; kwargs...)
+
+Plot the waveform of the experiment data on the given axis.
+
+# Arguments
+- `axis`: The axis to plot on.
+- `exp`: The `Experiment` object containing the data.
+- Various keyword arguments to customize the plot.
+
+# Returns
+- The plot object.
+
+# Examples
+```julia
+waveplot(axis, my_experiment; spacing=100, color=:black)
+
+"""
 function waveplot(axis, exp::Experiment; spacing = 100, color = :black, cvals = nothing, kwargs...)
     sweep_size = size(exp,1)
     for (idx, trial) in enumerate(eachtrial(exp))
@@ -121,6 +191,25 @@ function waveplot(axis, exp::Experiment; spacing = 100, color = :black, cvals = 
     end
 end
 
+"""
+    default_violin(ax, x::Union{Int64, UnitRange, Vector}, yvals::Union{Vector, Matrix}; kwargs...)
+
+Create a violin plot on the given axis.
+
+# Arguments
+- `ax`: The axis to plot on.
+- `x`: The x-coordinate(s) for the violin plot.
+- `yvals`: The y-values for the violin plot.
+- Various keyword arguments to customize the plot.
+
+# Returns
+- The violin plot object.
+
+# Examples
+```julia
+default_violin(ax, 1, [1.0, 2.0, 3.0])
+
+"""
 function default_violin(ax, x::Int64, yvals::Vector; color = :black, alpha = 0.3, plot_jitter = true, s = 15.0, kwargs...)
     vp = ax.violinplot(yvals, [x]; showmeans = true, kwargs...)
     for pc in vp["bodies"]
