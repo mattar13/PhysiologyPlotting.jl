@@ -1,3 +1,33 @@
+"""
+     add_scalebar(axis, loc::Tuple{T,T}, dloc::Tuple{T,T}; 
+               fontsize=10.0, lw=3.0, xlabeldist=30.0, ylabeldist=15.0,
+               xunits="ms", yunits="μV", xconvert=1000.0, yconvert=1.0, xround=true, yround=true, kwargs...) where {T<:Real}
+
+Add a scale bar to the plot at the specified location.
+
+# Arguments
+- `axis`: The axis to add the scale bar to.
+- `loc`: The (x, y) location where the scale bar starts.
+- `dloc`: The (dx, dy) dimensions of the scale bar.
+
+# Keyword Arguments
+- `fontsize`: Font size for the scale bar labels (default: 10.0).
+- `lw`: Line width of the scale bar (default: 3.0).
+- `xlabeldist`: Distance for the x-axis label (default: 30.0).
+- `ylabeldist`: Distance for the y-axis label (default: 15.0).
+- `xunits`: Units for the x-axis (default: "ms").
+- `yunits`: Units for the y-axis (default: "μV").
+- `xconvert`: Conversion factor for x-axis units (default: 1000.0).
+- `yconvert`: Conversion factor for y-axis units (default: 1.0).
+- `xround`: Whether to round the x-axis label (default: true).
+- `yround`: Whether to round the y-axis label (default: true).
+
+# Examples
+```julia
+add_scalebar(axis, (0.0, 0.0), (1.0, 1.0))
+
+```
+"""
 function add_scalebar(axis, loc::Tuple{T,T}, dloc::Tuple{T,T};
     fontsize=10.0, lw=3.0,
     xlabeldist=30.0, ylabeldist=15.0,
@@ -31,6 +61,36 @@ function add_scalebar(axis, loc::Tuple{T,T}, dloc::Tuple{T,T};
     axis.annotate("$xscale $xunits", (x + dx / 2, y - (data_height / ylabeldist)), va="center", ha="center", rotation="horizontal", fontsize=fontsize)
 end
 
+
+"""
+     add_sig_bar(axes, x::Real, y::Real; 
+                level = "*", color = :black, pointer = false,
+                pointer_dx = 0.5, pointer_ylims = [2.0, 3.0], 
+                lw = 1.0, fs = 12.0, ls = "solid")
+
+    add_sig_bar(axis, xs::Vector{T}, ys::Vector{T}; kwargs...) where T <: Real
+
+Add a significance bar to the plot at the specified x and y coordinates.
+
+# Arguments
+- `axes`: The axis or axes to add the significance bar to.
+- `x`, `y`: The x and y coordinates for the significance bar.
+
+# Keyword Arguments
+- `level`: Significance level (default: "*").
+- `color`: Color of the significance bar (default: :black).
+- `pointer`: Whether to include a pointer (default: false).
+- `pointer_dx`: Horizontal distance for the pointer (default: 0.5).
+- `pointer_ylims`: Vertical limits for the pointer (default: [2.0, 3.0]).
+- `lw`: Line width (default: 1.0).
+- `fs`: Font size (default: 12.0).
+- `ls`: Line style (default: "solid").
+
+# Examples
+```julia
+add_sig_bar(axis, 1.0, 2.0; level="*")
+```
+"""
 function add_sig_bar(axes, x::Real, y::Real; 
     level = "*", color = :black, 
     pointer = false,
@@ -72,8 +132,25 @@ function add_sig_bar(axis, xs::Vector{T}, ys::Vector{T}; kwargs...) where T <: R
     end
 end
 
-#==# 
-#function is not working well
+
+"""
+     add_border(ax; c = :black, xpad_ratio = 0.2, ypad_ratio = 0.2)
+
+Add a border around the axis.
+
+# Arguments
+- `ax`: The axis to add the border to.
+
+# Keyword Arguments
+- `c`: Color of the border (default: :black).
+- `xpad_ratio`: Padding ratio for the x-axis (default: 0.2).
+- `ypad_ratio`: Padding ratio for the y-axis (default: 0.2).
+
+# Examples
+```julia
+add_border(ax; c=:black)
+```
+"""
 function add_border(ax; c = :black, xpad_ratio = 0.2, ypad_ratio = 0.2)
     xmin, xmax, ymin, ymax = ax.axis()
 
@@ -90,6 +167,24 @@ function add_border(ax; c = :black, xpad_ratio = 0.2, ypad_ratio = 0.2)
     ax.add_patch(recA)
 end
 
+
+"""
+     draw_axes_border(ax; lw = 2.5, color = :black)
+
+Draw a border around the axes.
+
+# Arguments
+- `ax`: The axis to draw the border around.
+
+# Keyword Arguments
+- `lw`: Line width (default: 2.5).
+- `color`: Color of the border (default: :black).
+
+# Examples
+```julia
+draw_axes_border(ax; lw=2.5)
+```
+"""
 function draw_axes_border(ax; lw = 2.5, color = :black)
     for location in ["left", "right", "top", "bottom"]
          ax.spines[location].set_visible(true)
@@ -100,8 +195,36 @@ function draw_axes_border(ax; lw = 2.5, color = :black)
     ax.xaxis.set_visible(false)
 end
 
+
 """
-This function draws a bordered box in the data with a gradient. Useful for some figures
+draw_gradient_box(ax, xy, dxy; 
+color = "Greys", cmin = 0.0, cmax = 1.0, n_steps = 100, 
+cspace = nothing, fontcolor = "white", fontsize = 7, 
+text = "default", fontweight="bold", lw = 2.5)
+
+Draw a gradient box at the specified location.
+
+# Arguments
+- `ax`: The axis to draw the gradient box on.
+- `xy`: The (x, y) coordinates of the bottom-left corner of the box.
+- `dxy`: The (dx, dy) dimensions of the box.
+
+# Keyword Arguments
+- `color`: Color map for the gradient (default: "Greys").
+- `cmin`: Minimum color value (default: 0.0).
+- `cmax`: Maximum color value (default: 1.0).
+- `n_steps`: Number of steps for the gradient (default: 100).
+- `cspace`: Custom color space (default: nothing).
+- `fontcolor`: Font color for the text (default: "white").
+- `fontsize`: Font size for the text (default: 7).
+- `text`: Text to display (default: "default").
+- `fontweight`: Font weight for the text (default: "bold").
+- `lw`: Line width for the box (default: 2.5).
+
+# Examples
+```julia
+draw_gradient_box(ax, (0.0, 0.0), (1.0, 1.0); color="Greys")
+```
 """
 function draw_gradient_box(ax, xy, dxy; 
      color = "Greys", cmin = 0.0, cmax = 1.0, n_steps = 100, 
@@ -142,5 +265,3 @@ function draw_gradient_box(ax, xy, dxy;
      ax.add_patch(gradient_box)
      ax.text(x+(width/2), y+height/2, text, color = fontcolor, fontsize = fontsize, weight = fontweight, va="center", ha = "center", zorder = 5)
 end
-
-#==#
