@@ -12,6 +12,7 @@ Check if the given `color` is a valid colormap.
 # Examples
 ```julia
 is_valid = is_cmap("viridis")
+```
 """
 function is_cmap(color)
     try
@@ -31,27 +32,30 @@ end
 Plot the experiment data on the given axis or axes.
 
 # Arguments
-- `axis`: A single axis or a vector of axes to plot on.
+- `axis`: The axis to plot the data on.
 - `exp`: The `Experiment` object containing the data.
 
-#Keyword Arguments
-- `channels` DEFAULT[1]: The channels to be plotted 
-- `sweeps` DEFAULT[:all]: The sweeps to be plotted
-- `yaxes` DEFAULT[true]: Whether or not the yaxes should be plotted 
-- `xaxes` DEFAULT[true]: Wether or not the xaxes should be plotted
-- `xlims` DEFAULT[nothing] 
-- `ylims` DEFAULT[nothing]
-- `color` DEFAULT[:black] 
-- `cvals` DEFAULT[nothing] 
-- `clims` DEFAULT[(0.0, 1.0)]
-- `ylabel` DEFAULT[nothing] 
-- `xlabel` DEFAULT[nothing]
-- `linewidth` DEFAULT[1.0]
+# Keyword Arguments
+- `channels`: Channels to plot (default: 1).
+- `sweeps`: Sweeps to plot (default: :all).
+- `yaxes`: Whether to display the y-axis (default: true).
+- `xaxes`: Whether to display the x-axis (default: true).
+- `xlims`: X-axis limits (default: nothing).
+- `ylims`: Y-axis limits (default: nothing).
+- `color`: Color or colormap for the plot (default: :black).
+- `cvals`: Custom color values (default: nothing).
+- `clims`: Color limits for colormap (default: (0.0, 1.0)).
+- `ylabel`: Y-axis label (default: nothing).
+- `xlabel`: X-axis label (default: nothing).
+- `linewidth`: Line width for the plot (default: 1.0).
+- `layout`: Layout for multiple plots (default: nothing).
+- `channels`: Channels to plot (default: nothing).
+- `st`: Style of the plot, can be :trace, :waveplot, or :trace3D (default: :trace).
+
 
 - `kwargs`: These are keyword arguments common to PyPlot.jl. 
     Please see: https://github.com/JuliaPy/PyPlot.jl or https://matplotlib.org/stable/index.html
     for further documentation
-
 
 # Returns
 - The plot object.
@@ -59,6 +63,7 @@ Plot the experiment data on the given axis or axes.
 # Examples
 ```julia
 plot_experiment(axis, my_experiment; channels=1, sweeps=:all)
+```
 """
 function plot_experiment(axis::T, exp::Experiment;
     channels=1, sweeps = :all, 
@@ -175,7 +180,7 @@ Plot the waveform of the experiment data on the given axis.
 # Examples
 ```julia
 waveplot(axis, my_experiment; spacing=100, color=:black)
-
+```
 """
 function waveplot(axis, exp::Experiment; spacing = 100, color = :black, cvals = nothing, kwargs...)
     sweep_size = size(exp,1)
@@ -208,6 +213,7 @@ Create a violin plot on the given axis.
 # Examples
 ```julia
 default_violin(ax, 1, [1.0, 2.0, 3.0])
+```
 
 """
 function default_violin(ax, x::Int64, yvals::Vector; color = :black, alpha = 0.3, plot_jitter = true, s = 15.0, kwargs...)
