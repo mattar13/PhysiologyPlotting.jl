@@ -1,7 +1,7 @@
 name = "PhysiologyPlotting"
 uuid = "d5a2a81f-3167-4eb5-8f67-b1ebe6a4430d"
 authors = ["Matthew Tarchick"]
-version = "0.1.9"
+version = "0.1.10"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
