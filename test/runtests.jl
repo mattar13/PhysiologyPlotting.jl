@@ -1,3 +1,20 @@
+#=
+[compat]
+CairoMakie = "0.10"
+Conda = "1"
+DataFrames = "1"
+Distributions = "0.25"
+ElectroPhysiology = "0.4"
+GLMakie = "0.8"
+PyCall = "1"
+PyPlot = "2"
+Query = "1"
+Requires = "1"
+Statistics = "1"
+julia = "1"
+=#
+using Pkg
+println(Pkg.status())
 using ElectroPhysiology
 using PhysiologyPlotting
 using Test
