@@ -158,7 +158,7 @@ function add_border(ax; c = :black, xpad_ratio = 0.2, ypad_ratio = 0.2)
     yrng = ymax - ymin
     xpad = xpad_ratio*xrng
     ypad = ypad_ratio*yrng
-    println(xpad) 
+    #println(xpad) 
     x1 = xmin - xpad_ratio
     y1 = ymin - ypad_ratio
     dx = xpad*2 + xrng
