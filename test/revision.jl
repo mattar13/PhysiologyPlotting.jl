@@ -1,28 +1,53 @@
+using Pkg; Pkg.activate("test")
 using Revise
 using ElectroPhysiology
-using PyPlot; PyPlot.pygui(true)
 using PhysiologyPlotting
-#%% Make a wave plot
 
+#using GLMakie
+using PyPlot
+PyPlot.pygui(true)
 
-#%% Section 1. Revision of some plotting tools
-test_file = raw"test/to_analyze.abf"
-data = readABF(test_file) |> data_filter
-data_ch1 = getchannel(data, 1)
-#%%
-#We need a method to sort the files by the photon intensity without actually measuring it
-fig, axs = plt.subplots(2)
-waveplot(axs[1], data_ch1)
-plot_experiment(axs[2], data_ch1)
+#%% We can  use maybe a gaussian curve to properly plot the points maximum value
+xs = collect(1:6)
+yvals = rand(100, maximum(xs))
 
 #%%
-cvals = minimum(data, dims = 2)[:,1,1]
-cvals .-= minimum(cvals)
-cvals ./= maximum(cvals)
-fig = plot_experiment(data, xlims = (-0.1, 3.2), linewidth=3.0, ylabel = "Voltage (μV)", channels = "Vm_prime", cvals = cvals, color = "brg");
-fig.savefig(raw"C:\Users\mtarc\The University of Akron\RetinaRig - General\Presentations\logo.svg", transparent=true)
-     #channels = "Vm_prime", color = "turbo",   
+PhysiologyPlotting.__init__()
+fig, ax = plt.subplots(3, 2)
+for i in xs
+     ys = yvals[:, i]
+     default_violin(ax[i], i, ys)
+end
+
+add_border(ax[1], xpad_ratio = 0.1, ypad_ratio = 0.1)
 #%%
-fig, ax = plt.subplots(1)
-plot_experiment(ax, data, channels = 2, color = :black, alpha = 0.2, xlims = (-0.25, 5.0))
-fig
+#%% Make and plot ERG episodic data
+
+data = readABF(raw"C:\Users\mtarc\OneDrive - The University of Akron\Data\ERG\P14_Wildtype\2019_11_10_P14WT\Mouse2_P14_WT\BaCl_LAP4\Rods" |> parseABF)# |> data_filter
+data_filter!(data)
+#%% Generate a makie plot
+dpi = 600
+f = Figure(size = (2.5, 2.5))
+ax1 = Axis(f[1,1], 
+     title = "Experiment Plot Test",
+     xlabel = "Time (ms)", 
+     ylabel = "Response (μV)"
+)
+ax2 = Axis(f[2,1], 
+     title = "Experiment Plot Test",
+     xlabel = "Time (ms)", 
+     ylabel = "Response (μV)"
+)
+
+line_arr = plot_experiment(ax1, data; color = :black)
+line_arr = plot_experiment(ax2, data; color = :black)
+
+line_arr[2].color = :blue
+line_arr[3].color = :green
+
+display(f)
+
+#%%
+fig = plot_experiment(data; color = :black)
+
+f
