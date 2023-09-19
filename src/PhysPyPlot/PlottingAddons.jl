@@ -100,13 +100,12 @@ function add_sig_bar(axes, x::Real, y::Real;
 )    
     #println(level)
     if isa(level, Float64)
-        println(level)
-        println(sig_level(level))
-
+        #println(level)
+        #println(sig_level(level))
         level = sig_level(level)
-        println(level)
+        #println(level)
     end
-    println(level)
+    #println(level)
     if level != "n.s"
          axes.text(x, y, level, ha = "center", va = "center", fontsize = fs, color = color)
          if pointer
