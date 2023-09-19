@@ -37,7 +37,25 @@ function plot_prep(exp::Experiment; channels=1, sweeps = :all)
      end
 end
 
-function sig_level(p)
+"""
+     sig_level(p::T) where T<:Real
+
+Gives the p-value for some stat and then returns the symbol in *. The levels are default. 
+Asterisks indicate p-value levels: 
+- * (0.01 < p < 0.05) Significant is between 0.05 and 0.01
+- ** (0.001 < p < 0.01) Really significant is between 0.01 and 0.001. 
+- *** (p < 0.001) super significant is anything under 0.001.
+
+# Arguments
+- `p`: The p-value from a hypothesis test. 
+
+
+# Examples
+```julia
+sig_level(p)
+```
+"""
+function sig_level(p::T) where T<:Real
      if 0.01 < p <= 0.05
           return "*"
      elseif 0.001 < p <= 0.01
