@@ -26,8 +26,8 @@ data = readABF(test_file)
     #Test the default frontend
     using PyPlot
     @test PhysiologyPlotting.frontend == :PyPlot
-
-    plot_experiment(data, channels = 2, color = :black, alpha = 0.2, xlims = (-0.25, 5.0))
+    fig, axis = plt.subplots(2)
+    plot_experiment(axis, data, channels = 2, alpha = 0.2, xlims = (-0.25, 5.0))
 end
 
 @testset "Testing CairoMakie" begin 
