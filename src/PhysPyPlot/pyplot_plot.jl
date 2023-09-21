@@ -87,14 +87,14 @@ function plot_experiment(axis::T, exp::Experiment;
     else
         axis.plot(dataX, dataY; c = color, kwargs...)
     end
-    axis.spines["top"].set_visible(false)
-    axis.spines["right"].set_visible(false)
+    axis.spines.top.set_visible(false)
+    axis.spines.right.set_visible(false)
     if !(yaxes)
-        axis.spines["left"].set_visible(false)
+        axis.spines.left.set_visible(false)
         axis.yaxis.set_visible(false)
     end
     if !(xaxes)
-        axis.spines["bottom"].set_visible(false) #We want the spine to fully
+        axis.spines.bottom.set_visible(false) #We want the spine to fully
         axis.xaxis.set_visible(false)
     end
 
@@ -124,7 +124,7 @@ function plot_experiment(axis::Vector{T}, exp::Experiment; kwargs...) where T #I
     #This is for if there are multiple axes
     for (ch, axis) in enumerate(axis)
         if ch == 1
-            plot_experiment(axis::T, exp::Experiment; channels=ch, include_xlabel = false, kwargs...)
+            plot_experiment(axis::T, exp::Experiment; channels=ch, xlabel = nothing, kwargs...)
         else
             plot_experiment(axis::T, exp::Experiment; channels=ch, kwargs...)
         end
