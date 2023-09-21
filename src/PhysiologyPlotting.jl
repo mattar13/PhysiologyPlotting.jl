@@ -5,7 +5,6 @@ using Requires
 
 using ElectroPhysiology
 import ElectroPhysiology: Experiment, readABF, parseABF
-using DataFrames, Query
 using Distributions, Statistics
 
 frontend = :None
@@ -17,6 +16,10 @@ frontend = :None
 
 #using PyPlot
 #println(PyPlot)
+
+#using DataFrames, Query
+
+#using GLMakie, CairoMakie
 
 # Include all the plotting utilities
 include("utilities.jl")
@@ -60,8 +63,12 @@ function __init__()
           export plot_experiment, waveplot , default_violin
 
           @require DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0" begin
-               include("PhysPyPlot/datasheet_plot.jl")
-               export plot_data_summary
+               #println("Dataframes Loaded")
+               @require Query = "1a8c2f83-1ff3-5112-b086-8aa67b057ba1" begin
+                    #println("Query Loaded")
+                    include("PhysPyPlot/datasheet_plot.jl")
+                    export plot_data_summary
+               end
           end
 
           include("PhysPyPlot/PlottingAddons.jl")
