@@ -82,7 +82,7 @@ function plot_experiment(axis::T, exp::Experiment;
         end
         cmapI = plt.get_cmap(color)
         for (swp, cval) in enumerate(cvals)
-            axis.plot(dataX, dataY[:, swp], c = cmapI(cval), linewidth = linewidth, kwargs...)
+            axis.plot(dataX, dataY[:, swp], c = cmapI(cval), kwargs...)
         end
     else
         axis.plot(dataX, dataY; c = color, kwargs...)
