@@ -9,6 +9,7 @@ function plot_experiment(ax, EXP::Experiment;
      ylabel = nothing, xlabel = nothing,
      linewidth = 1.0, kwargs...
 )
+     println("Working with GLMakie")
      line_arr = []
      x = EXP.t
      for (idx_ch, ch) in enumerate(eachchannel(EXP))

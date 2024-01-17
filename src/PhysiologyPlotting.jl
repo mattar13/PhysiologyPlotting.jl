@@ -8,20 +8,6 @@ import ElectroPhysiology: Experiment, readABF, parseABF
 using Distributions, Statistics
 
 frontend = :None
-
-#using PyCall
-
-#using Plots
-#println(Plots) 
-
-#using PyPlot
-#println(PyPlot)
-
-#using DataFrames, Query
-
-#using GLMakie, CairoMakie
-
-# Include all the plotting utilities
 include("utilities.jl")
 
 """
@@ -42,6 +28,7 @@ export plot_experiment
 
 function __init__()
      @require CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0" begin
+          using .CairoMakie
           frontend = :CairoMakie
           #using CairoMakie
           include("PhysMakie/makie_plot.jl")
@@ -49,6 +36,8 @@ function __init__()
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
+          println("Loading GLMakie")
+          using .GLMakie #In the requires syntax, you need to include the using .Pkg syntax
           frontend = :GLMakie
           #using GLMakie
           include("PhysMakie/makie_plot.jl")
@@ -56,6 +45,8 @@ function __init__()
      end
 
      @require PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee" begin
+          println("Loading PyPlot")
+          using .PyPlot
           frontend = :PyPlot
           #using PyPlot
           # Include all of the PyPlot functions

@@ -74,6 +74,8 @@ function plot_experiment(axis::T, exp::Experiment;
     linewidth = 1.0, 
     kwargs...
 ) where T
+    println("Working with PyPlot")
+
     dataX, dataY = plot_prep(exp; channels=channels, sweeps = sweeps)
     if is_cmap(color)
         if isnothing(cvals)
