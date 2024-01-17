@@ -1,4 +1,14 @@
-function plot_experiment(ax, EXP::Experiment; kwargs...)
+"""
+     plot_experiment(ax)
+"""
+function plot_experiment(ax, EXP::Experiment; 
+     channels=1, sweeps = :all, 
+     yaxes=true, xaxes=true, #Change this, this is confusing
+     xlims = nothing, ylims = nothing,
+     color = :black, cvals = nothing, clims = (0.0, 1.0), #still want to figure out how this wil work
+     ylabel = nothing, xlabel = nothing,
+     linewidth = 1.0, kwargs...
+)
      line_arr = []
      x = EXP.t
      for (idx_ch, ch) in enumerate(eachchannel(EXP))
@@ -14,4 +24,9 @@ function plot_experiment(ax, EXP::Experiment; kwargs...)
      hidespines!(ax, :t, :r)
      hidedecorations!(ax, grid = true, ticks = false, ticklabels = false)
      return line_arr
+end
+
+function plot_experiment(EXP::Experiment{T}; layout = :sweeps, kwargs...) where T<:Real
+     println(size(EXP))
+
 end
