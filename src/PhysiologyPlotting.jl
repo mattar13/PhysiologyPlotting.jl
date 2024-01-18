@@ -8,6 +8,7 @@ import ElectroPhysiology: Experiment, readABF, parseABF
 using Distributions, Statistics
 
 frontend = :None
+
 include("utilities.jl")
 
 """
@@ -33,19 +34,19 @@ function __init__()
           #using CairoMakie
           include("PhysMakie/makie_plot.jl")
           export draw_circle, draw_arrow_with_text
+          export plot_experiment
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
-          println("Loading GLMakie")
           using .GLMakie #In the requires syntax, you need to include the using .Pkg syntax
           frontend = :GLMakie
           #using GLMakie
           include("PhysMakie/makie_plot.jl")
           export draw_circle, draw_arrow_with_text
+          export plot_experiment
      end
 
      @require PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee" begin
-          println("Loading PyPlot")
           using .PyPlot
           frontend = :PyPlot
           #using PyPlot
