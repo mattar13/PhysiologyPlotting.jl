@@ -28,6 +28,7 @@ function plot_experiment(ax, EXP::Experiment;
 end
 
 function plot_experiment(EXP::Experiment{T}; layout = :sweeps, kwargs...) where T<:Real
+     println("I think this one is not as important at the moment")
      println(size(EXP))
 
 end
