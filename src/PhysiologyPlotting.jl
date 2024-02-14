@@ -27,6 +27,12 @@ end
 export plot_experiment
 
 
+frontend = :GLMakie
+#using GLMakie
+include("PhysMakie/makie_plot.jl")
+export draw_circle, draw_arrow_with_text
+export plot_experiment
+
 function __init__()
      @require CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0" begin
           using .CairoMakie
