@@ -1,16 +1,20 @@
-using GLMakie
-@recipe(PlotExperiment) do scene
-     Theme(
-          plot_color = :red,
-          linewidth = 10.0
+import ElectroPhysiology.Experiment
+#Makie.convert_arguments(P::Type{<:Lines}, exp::Experiment) = convert_arguments(P, exp.t, exp.data_array)
+
+@recipe(ExperimentPlot, experiment) do scene
+     Attributes(
+          color = :black,
+          linewidth = 5.0,
+          subplot_dims = 3,
+          test = "NotImplemented"
      )
 end
 
-function GLMakie.plot!(plot_experiment::PlotExperiment)
-     lines!(plot_experiment, rand(10), color = myplot.plot_color, linewidth = myplot.linewidth)
-     plot_experiment
+function Makie.plot!(plot::ExperimentPlot)
+     println(plot.test)
+     exp = plot[:experiment][]
+     time = exp.t
+     data = exp.data_array[1,:,1]
+     lines!(plot, time, data, color = plot.color, linewidth = plot.linewidth)
+     plot
 end
-
-fig = Figure()
-ax1 = Axis(fig[1,1])
-plot_experiment!(ax1)

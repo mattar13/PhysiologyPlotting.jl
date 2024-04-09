@@ -11,6 +11,7 @@ frontend = :None
 
 include("utilities.jl")
 
+#=
 """
 
 
@@ -34,7 +35,7 @@ function plot_experiment(args...)
      using PyPlot
      """
 end
-export plot_experiment, plot_experiment!
+export plot_experiment, plot_experiment!=#
 
 function __init__()
      @require CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0" begin
@@ -50,9 +51,9 @@ function __init__()
           using .GLMakie #In the requires syntax, you need to include the using .Pkg syntax
           frontend = :GLMakie
           #using GLMakie
-          include("PhysMakie/makie_plot.jl")
-          export draw_circle, draw_arrow_with_text
-          export plot_experiment
+          include("PhysMakie/MakieRecipes.jl")
+          export experimentplot, experimentplot!
+          export plot, plot!
      end
 
      @require PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee" begin
