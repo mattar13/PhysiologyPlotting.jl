@@ -15,7 +15,7 @@ include("utilities.jl")
 
 
 """
-function plot_experiment(args...) 
+function plot!(args...) 
      @warn "One of the frontends must first be loaded."
      @info """
      Please load and use one of the following
@@ -24,13 +24,6 @@ function plot_experiment(args...)
      using PyPlot
      """
 end
-export plot_experiment
-
-
-frontend = :GLMakie
-#using GLMakie
-include("PhysMakie/makie_plot.jl")
-export draw_circle, draw_arrow_with_text
 export plot_experiment
 
 function __init__()
