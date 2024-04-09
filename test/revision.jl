@@ -1,30 +1,41 @@
 using Revise
+using GLMakie
 using ElectroPhysiology
 using PhysiologyPlotting
 PhysiologyPlotting.frontend
-using GLMakie
-PhysiologyPlotting.frontend
+import ElectroPhysiology.create_signal_waveform!
 #using Pkg; Pkg.activate("test")
 
-time = collect(1:0.1:100) #Create some time range
-data = rand(5, length(time), 1) #Create some dummy data
-exp = ElectroPhysiology.Experiment(data)
+#%% Fixing GLMakie plotting
+root = raw"F:\Data\Patching"
+file = "2024_01_25_ChAT-RFP_DSGC/Cell1/24125005.abf"
+filename = joinpath(root, file)
+data = readABF(filename)
+create_signal_waveform!(data, "Cmd 0")
 
-f = Figure(size = (2.5, 2.5))
+f = Figure(size = (4000, 5000))
 ax1 = Axis(f[1,1], 
-     title = "Experiment Plot Test",
      xlabel = "Time (ms)", 
-     ylabel = "Response (μV)"
+     ylabel = "$(data.chNames[1]) $(data.chUnits[1])"
 )
-plot_experiment(ax1, exp)
+ax2 = Axis(f[2,1], 
+     xlabel = "Time (ms)", 
+     ylabel = "$(data.chNames[2]) $(data.chUnits[2])" 
+)
+#ax2 = Axis(f[2,1])
+line_arr = plot_experiment(ax1, data; channels = 1)
+line_arr = plot_experiment(ax2, data; channels = 2)
+display(f)
+
+#%% Important to know which protocol is being run
+data.HeaderDict["ProtocolPath"]
+data.HeaderDict["nOperationMode"]
+data.HeaderDict["dacNames"]
+data.HeaderDict["dacUnits"]
+GLMakie.save("IV_curve2_00.png", f)
 
 #%%
 using PyPlot
-
-
-
-
-
 #%% We can  use maybe a gaussian curve to properly plot the points maximum value
 xs = collect(1:6)
 yvals = rand(100, maximum(xs))
