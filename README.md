@@ -15,3 +15,23 @@
 
 This is the plotting toolkit for the larger package ElectroPhysiology.jl
 see documentation [here](https://github.com/mattar13/ElectroPhysiology.jl)
+
+
+### Basic usage
+
+~~~
+#=====================================================================#
+using ElectroPhysiology, PhysiologyPlotting
+using GLMakie
+
+#=[Point to filenames]================================================#
+data_fn = "<DATA_FILEPATH.abf>"
+save_fn = "<SAVE_FILEPATH.png>"
+
+#=[Open data]=========================================================#
+data = readABF(filename)
+
+#=[Plot data]=========================================================#
+fig, axs = experimentplot(data)
+save(save_fn, fig)
+~~~
