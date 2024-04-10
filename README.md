@@ -19,6 +19,7 @@ see documentation [here](https://github.com/mattar13/ElectroPhysiology.jl)
 
 ### Basic usage
 
+'''
 #=====================================================================#
 using ElectroPhysiology, PhysiologyPlotting
 using GLMakie
@@ -32,3 +33,4 @@ data = readABF(filename)
 #=[Plot data]=========================================================#
 fig, axs = experimentplot(data)
 save(save_fn, fig)
+'''
