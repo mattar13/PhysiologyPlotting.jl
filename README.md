@@ -24,10 +24,11 @@ see documentation [here](https://github.com/mattar13/ElectroPhysiology.jl)
 using ElectroPhysiology, PhysiologyPlotting
 using GLMakie
 
-#=[Open data]=========================================================#
+#=[Point to filenames]================================================#
 data_fn = "<DATA_FILEPATH.abf>"
 save_fn = "<SAVE_FILEPATH.png>"
 
+#=[Open data]=========================================================#
 data = readABF(filename)
 
 #=[Plot data]=========================================================#
