@@ -39,4 +39,13 @@ end
 @testset "Testing GLMakie" begin
     using GLMakie
     @test PhysiologyPlotting.frontend == :GLMakie
+
+    #This is the plot where we use specific subplots
+    fig = Figure()
+    ax1 = Axis(fig[1,1], ylabel = getChannelName(data, 1))
+    ax2 = Axis(fig[2,1], xlabel = "Time (ms)", ylabel = getChannelName(data, 2))
+    experimentplot!(ax1, data, channel = 1)
+    experimentplot!(ax2, data, channel = 2)
+    display(fig)
+
 end
