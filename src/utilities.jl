@@ -66,3 +66,5 @@ function sig_level(p::T) where T<:Real
           return "n.s"
      end
 end
+
+getChannelName(exp, channel) = "$(exp.chNames[channel]) ($(exp.chUnits[channel]))"
