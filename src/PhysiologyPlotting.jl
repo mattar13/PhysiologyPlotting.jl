@@ -10,6 +10,7 @@ using Distributions, Statistics
 frontend = :None
 
 include("utilities.jl")
+export getChannelName
 
 #=
 """
@@ -41,16 +42,16 @@ function __init__()
      @require CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0" begin
           using .CairoMakie
           frontend = :CairoMakie
-          #using CairoMakie
-          include("PhysMakie/makie_plot.jl")
-          export draw_circle, draw_arrow_with_text
-          export plot_experiment
+          include("PhysMakie/MakiePlot.jl")
+          include("PhysMakie/MakieRecipes.jl")
+          export experimentplot, experimentplot!
+          export plot, plot!
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
           using .GLMakie #In the requires syntax, you need to include the using .Pkg syntax
           frontend = :GLMakie
-          #using GLMakie
+          include("PhysMakie/MakiePlot.jl")
           include("PhysMakie/MakieRecipes.jl")
           export experimentplot, experimentplot!
           export plot, plot!
