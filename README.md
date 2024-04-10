@@ -26,7 +26,7 @@ using GLMakie
 
 #=[Open data]=========================================================#
 data_fn = "<DATA_FILEPATH>"
-save_fn = "<SAVE_FILEPATH"
+save_fn = "<SAVE_FILEPATH>"
 
 data = readABF(filename)
 
