@@ -25,8 +25,8 @@ using ElectroPhysiology, PhysiologyPlotting
 using GLMakie
 
 #=[Open data]=========================================================#
-data_fn = "<DATA_FILEPATH>"
-save_fn = "<SAVE_FILEPATH>"
+data_fn = "<DATA_FILEPATH.abf>"
+save_fn = "<SAVE_FILEPATH.png>"
 
 data = readABF(filename)
 
