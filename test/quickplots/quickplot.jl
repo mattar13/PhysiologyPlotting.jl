@@ -1,16 +1,14 @@
-using Revise
+#=====================================================================#
+using ElectroPhysiology, PhysiologyPlotting
 using GLMakie
-using ElectroPhysiology
-using PhysiologyPlotting
 
-#=[Open data]===============================================#
-root = raw"F:\Data\Patching"
-file = "2024_01_25_ChAT-RFP_DSGC/Cell1/24125005.abf"
-filename = joinpath(root, file)
+#=[Open data]=========================================================#
+data_fn = "F:/Data/Patching/2024_01_25_ChAT-RFP_DSGC/Cell1/24125005.abf"
+save_fn = "quickplot.abf"
+
 data = readABF(filename)
 create_signal_waveform!(data, "Cmd 0")
 
-#=[Plot data]===============================================#
+#=[Plot data]=========================================================#
 fig, axs = experimentplot(data)
-
-save("quickplot.png", fig)
+save(save_fn, fig)
