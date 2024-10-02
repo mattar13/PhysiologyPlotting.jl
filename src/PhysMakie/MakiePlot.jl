@@ -1,10 +1,7 @@
 """
 This function takes the experiment and plots subplots
 """
-function experimentplot(exp::Experiment; 
-     subplot = :channels, figsize = (800, 400)
-     
-)    
+function experimentplot(exp::Experiment{WHOLE_CELL}; subplot = :channels, figsize = (800, 400))    
      n_trials, n_data, n_channels = size(exp)
      fig = Figure(size = figsize)
      axs = Axis[]
