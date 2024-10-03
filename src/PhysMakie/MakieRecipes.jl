@@ -58,8 +58,8 @@ function Makie.plot!(tpf::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Int
           (xlims[1], xlims[end]),
           (ylims[1], ylims[end]),
           image_data, 
-          colormap = tp.colormap, 
-          colorrange = tp.colorrange,
+          colormap = tpf.colormap, 
+          colorrange = tpf.colorrange,
           #aspect = tp.aspect
      )
      tpf
