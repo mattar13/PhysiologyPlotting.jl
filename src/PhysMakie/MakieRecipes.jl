@@ -49,7 +49,7 @@ function Makie.plot!(tpf::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Int
     image_data = @lift(get_frame(exp, $frame)[:, :, 1, $channel])
  
      # Determine color range if not set
-     if isnothing(tp.colorrange[])
+     if isnothing(tpf.colorrange[])
          tpf.colorrange[] = (minimum(image_data), maximum(image_data))
      end
  
