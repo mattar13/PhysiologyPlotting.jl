@@ -5,6 +5,7 @@ using Requires
 
 using ElectroPhysiology
 import ElectroPhysiology: Experiment, readABF, parseABF
+import ElectroPhysiology: WHOLE_CELL, TWO_PHOTON
 using Distributions, Statistics
 
 frontend = :None
@@ -45,13 +46,14 @@ function __init__()
           include("PhysMakie/MakiePlot.jl")
           include("PhysMakie/MakieRecipes.jl")
           export experimentplot, experimentplot!
+          export twophotonframe, twophotonframe!
           export plot, plot!
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
           using .GLMakie #In the requires syntax, you need to include the using .Pkg syntax
           frontend = :GLMakie
-          include("PhysMakie/MakiePlot.jl")
+          #include("PhysMakie/MakiePlot.jl")
           include("PhysMakie/MakieRecipes.jl")
           export experimentplot, experimentplot!
           export plot, plot!
