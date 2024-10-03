@@ -16,8 +16,12 @@ xlims = data2P.HeaderDict["xrng"]
 ylims = data2P.HeaderDict["yrng"]
 deinterleave!(data2P) #This seperates the movies into two seperate movies
 
+val = Observable(xlims)
+minimum(val[])
+
 PhysiologyPlotting.__init__()
 twophotonprojection(data2P, dims = (1, 2), channel = 2)
+twophotonframe(data2P, 1, channel = 2)
 
 #%%
 fig = Figure(figsize = (800, 800))
