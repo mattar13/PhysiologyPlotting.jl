@@ -47,6 +47,7 @@ function __init__()
           include("PhysMakie/MakieRecipes.jl")
           export experimentplot, experimentplot!
           export twophotonframe, twophotonframe!
+          export twophotonprojection, twophotonprojection!
           export plot, plot!
      end
 

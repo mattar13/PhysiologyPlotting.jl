@@ -34,11 +34,11 @@ end
      )
 end
 
-function Makie.plot!(tp::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Integer}})
+function Makie.plot!(tpf::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Integer}})
      #Extract the 
-     exp = tp.experiment[]
-     frame = tp.frame
-     channel = tp.channel
+     exp = tpf.experiment[]
+     frame = tpf.frame
+     channel = tpf.channel
  
      #println("Frame: $frame_value, Channel: $channel")
  
@@ -50,11 +50,11 @@ function Makie.plot!(tp::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Inte
  
      # Determine color range if not set
      if isnothing(tp.colorrange[])
-         tp.colorrange[] = (minimum(image_data), maximum(image_data))
+         tpf.colorrange[] = (minimum(image_data), maximum(image_data))
      end
  
      # Plot the image
-     image!(tp, 
+     image!(tpf, 
           (xlims[1], xlims[end]),
           (ylims[1], ylims[end]),
           image_data, 
@@ -62,5 +62,52 @@ function Makie.plot!(tp::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Inte
           colorrange = tp.colorrange,
           #aspect = tp.aspect
      )
-     tp
- end
+     tpf
+end
+
+
+@recipe(TwoPhotonProjection, experiment) do scene
+     Attributes(
+          channel = 1,
+          colormap = :viridis,
+          colorrange = Observable{Any}(nothing),
+          color = :black,
+          linewidth = 1.0, 
+          dims = 3
+     )
+end
+
+function Makie.plot!(tpp::TwoPhotonProjection{<:Tuple{<:Experiment{TWO_PHOTON}}})
+     exp = tpp.experiment[]
+     dims = tpp.dims[]
+     channel = tpp.channel[]
+     # Compute the projection
+     if dims == 3 #This should be frame
+          xlims = exp.HeaderDict["xrng"]
+          ylims = exp.HeaderDict["yrng"]
+          #Extract the projected array
+          project_arr = project(exp, dims = dims)[:,:,1,channel]
+          
+          if isnothing(tpp.colorrange[])
+               tpp.colorrange[] = (minimum(project_arr), maximum(project_arr))
+          end
+
+          image!(tpp, 
+               (xlims[1], xlims[end]),
+               (ylims[1], ylims[end]),
+               project_arr, 
+               colormap = tpp.colormap, 
+               colorrange = tpp.colorrange,
+               #aspect = tp.aspect
+          )
+     else dims == (1,2) #This is a trace and needs to be a line
+          color = tpp.color[]
+          lw = tpp.linewidth[]
+          x = exp.t
+          #extract the projected array
+          project_arr = project(exp, dims = dims)[1,1,:,channel]
+
+          lines!(tpp, x, project_arr; color = color, linewidth = lw)
+     end
+     tpp
+end
