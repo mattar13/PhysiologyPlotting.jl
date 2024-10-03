@@ -37,7 +37,7 @@ end
 function Makie.plot!(tp::TwoPhotonFrame{<:Tuple{<:Experiment{TWO_PHOTON}, <:Integer}})
      #Extract the 
      exp = tp.experiment[]
-     frame_value = tp.frame
+     frame = tp.frame
      channel = tp.channel
  
      #println("Frame: $frame_value, Channel: $channel")
