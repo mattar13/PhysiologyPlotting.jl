@@ -13,32 +13,6 @@ frontend = :None
 include("utilities.jl")
 export getChannelName
 
-#=
-"""
-
-
-"""
-function plot_experiment!(args...) 
-     @warn "One of the frontends must first be loaded."
-     @info """
-     Please load and use one of the following
-     using GLMakie
-     using CairoMakie
-     using PyPlot
-     """
-end
-
-function plot_experiment(args...) 
-     @warn "One of the frontends must first be loaded."
-     @info """
-     Please load and use one of the following
-     using GLMakie
-     using CairoMakie
-     using PyPlot
-     """
-end
-export plot_experiment, plot_experiment!=#
-
 function __init__()
      @require CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0" begin
           using .CairoMakie
