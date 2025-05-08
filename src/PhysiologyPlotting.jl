@@ -7,6 +7,7 @@ using ElectroPhysiology
 import ElectroPhysiology: Experiment, readABF, parseABF
 import ElectroPhysiology: WHOLE_CELL, TWO_PHOTON
 using Distributions, Statistics
+using Statistics
 
 frontend = :None
 
@@ -23,6 +24,9 @@ function __init__()
           export twophotonframe, twophotonframe!
           export twophotonprojection, twophotonprojection!
           export plot, plot!
+          
+          include("PlottingFunctions/ROIVisualization.jl")
+          export plot_roi_analysis
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
@@ -30,6 +34,7 @@ function __init__()
           frontend = :GLMakie
           #include("PhysMakie/MakiePlot.jl")
           include("PhysMakie/MakieRecipes.jl")
+          include("PhysMakie/ROIVisualization.jl")
           export experimentplot, experimentplot!
           export plot, plot!
      end
