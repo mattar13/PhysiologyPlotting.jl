@@ -21,6 +21,8 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
     @assert haskey(data.HeaderDict, "ROI_Analysis") "Data must contain ROI analysis results in HeaderDict"
 
     analysis = data.HeaderDict["ROI_Analysis"]
+    delay_time = haskey(analysis.analysis_parameters, :delay_time) ? analysis.analysis_parameters[:delay_time] : nothing
+    println("delay_time: ", delay_time)
 
     # Plot max projection as background
     xlims = data.HeaderDict["xrng"]
@@ -163,130 +165,6 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
 end
 
 """
-    plot_roi_analysis_averaged(data::Experiment{TWO_PHOTON}; 
-        channel_idx::Union{Int,Nothing}=nothing)
-
-Create a visualization showing the ROI traces in two ways:
-1. All stimulus traces stitched together for each ROI
-2. Individual stimulus traces for each ROI, with each channel in a separate subplot
-
-If channel_idx is provided, only that channel will be shown. Otherwise, all channels will be displayed.
-
-Returns a Figure object containing all plots.
-"""
-function plot_roi_analysis_averaged(data::Experiment{TWO_PHOTON, T};
-    channel_idx::Union{Int,Nothing}=nothing) where {T <: Real}
-    
-    @assert haskey(data.HeaderDict, "ROI_Analysis") "Data must contain ROI analysis results in HeaderDict"
-
-    analysis = data.HeaderDict["ROI_Analysis"]
-    
-    # Determine which channels to process
-    channels_to_process = isnothing(channel_idx) ? analysis.channels : [channel_idx]
-    n_channels = length(channels_to_process)
-    
-    # Get all stimulus indices
-    stim_indices = unique([t.stimulus_index for traces in values(analysis.rois) for t in traces])
-    n_stims = length(stim_indices)
-    
-    # Create figure with layout
-    fig = Figure(size=(1200, 400 * n_channels))
-    
-    # Process each channel
-    for (ch_idx, channel) in enumerate(channels_to_process)
-        # Create a grid for this channel
-        gl_channel = fig[ch_idx, 1] = GridLayout()
-        
-        # Create both axes
-        ax_stitched = Axis(gl_channel[1,1], 
-            title="Channel $channel - All Stimuli Stitched",
-            xlabel="Time (s)", 
-            ylabel="ΔF/F")
-        
-        ax_stims = Axis(gl_channel[1,2], 
-            title="Channel $channel - Individual Stimuli",
-            xlabel="Time (s)", 
-            ylabel="ΔF/F")
-        
-        # Get significant ROIs for this channel
-        sig_rois = unique([id for (id, traces) in analysis.rois 
-            if any(t -> t.channel == channel && t.is_significant, traces)])
-        
-        # Initialize arrays to store all ROI data
-        all_stitched_times = Float64[]
-        all_stitched_traces = Float64[]
-        all_individual_times = Float64[]
-        all_individual_traces = Float64[]
-        
-        # Collect all ROI data
-        for roi_id in sig_rois
-            traces = filter(t -> t.channel == channel, analysis.rois[roi_id])
-            if isempty(traces)
-                continue
-            end
-            
-            # Sort traces by stimulus index
-            sort!(traces, by=t -> t.stimulus_index)
-            
-            # Collect traces
-            for trace in traces
-                # For stitched traces
-                if isempty(all_stitched_times)
-                    append!(all_stitched_times, trace.t_series)
-                    append!(all_stitched_traces, trace.dfof)
-                else
-                    overlap_time = analysis.analysis_parameters[:delay_time]
-                    overlap_idx = findfirst(t -> t >= overlap_time, trace.t_series)
-                    if isnothing(overlap_idx)
-                        overlap_idx = length(trace.t_series)
-                    end
-                    append!(all_stitched_times, trace.t_series[overlap_idx+1:end] .+ all_stitched_times[end] .- overlap_time)
-                    append!(all_stitched_traces, trace.dfof[overlap_idx+1:end])
-                end
-                
-                # For individual traces
-                append!(all_individual_times, trace.t_series)
-                append!(all_individual_traces, trace.dfof)
-            end
-        end
-        
-        # Calculate means across all ROIs
-        # For stitched traces
-        unique_times = unique(all_stitched_times)
-        mean_stitched = zeros(length(unique_times))
-        counts = zeros(length(unique_times))
-        
-        for (t, val) in zip(all_stitched_times, all_stitched_traces)
-            idx = findfirst(isequal(t), unique_times)
-            mean_stitched[idx] += val
-            counts[idx] += 1
-        end
-        mean_stitched ./= counts
-        
-        # For individual traces
-        n_points = length(traces[1].t_series)
-        individual_traces_matrix = reshape(all_individual_traces, n_points, :)
-        mean_individual = mean(individual_traces_matrix, dims=2)[:]
-        
-        # Plot means
-        lines!(ax_stitched, unique_times, mean_stitched, 
-            color=:blue, alpha=0.5)
-        
-        lines!(ax_stims, traces[1].t_series, mean_individual,
-            color=:blue, alpha=0.5)
-        
-        # Add stimulus time indicators if available
-        if haskey(analysis.analysis_parameters, :delay_time)
-            delay_time = analysis.analysis_parameters[:delay_time]
-            vlines!(ax_stitched, [delay_time], color=:red, linestyle=:dash)
-            vlines!(ax_stims, [delay_time], color=:red, linestyle=:dash)
-        end
-    end
-    
-    return fig
-end
-
-"""
     plot_roi_analysis_stitched(data::Experiment{TWO_PHOTON}; 
         channel_idx::Union{Int,Nothing}=nothing)
 
@@ -410,4 +288,118 @@ function plot_roi_analysis_stitched(data::Experiment{TWO_PHOTON, T};
         # axislegend(ax_stitched, position=:rt)
     end
     return fig
+end 
+
+"""
+    plot_analysis(data::Experiment{TWO_PHOTON}; 
+        channel_idx::Union{Int,Nothing}=nothing)
+
+A simple visualization showing the raw z-profile traces for each channel.
+This represents the mean intensity over time for the entire field of view.
+
+If channel_idx is provided, only that channel will be shown. Otherwise, all channels will be displayed.
+
+Returns a Figure object containing the plots.
+"""
+function plot_analysis(data::Experiment{TWO_PHOTON, T};
+    channel_idx::Union{Int,Nothing}=nothing) where {T <: Real}
+    @assert haskey(data.HeaderDict, "ROI_Analysis") "Data must contain ROI analysis results in HeaderDict"
+    analysis = data.HeaderDict["ROI_Analysis"]
+
+    # Determine which channels to process
+    if isnothing(channel_idx)
+        channels_to_process = collect(1:size(data, 3))
+    else
+        channels_to_process = [channel_idx]
+    end
+    n_channels = length(channels_to_process)
+    
+    # Create figure with layout
+    fig = Figure(size=(1000, 300 * n_channels))
+    
+    sig_traces = get_significant_traces(analysis)
+    # Process each channel
+    for (ch_idx, channel) in enumerate(channels_to_process)
+        # Create an axis for this channel
+        ax = Axis(fig[ch_idx, 1], 
+            title="Channel $channel - Z-Profile Trace",
+            xlabel="Time (s)", 
+            ylabel="Signal Intensity")
+
+        ax_average = Axis(fig[ch_idx, 2], 
+            title="Channel $channel - Average of Significant Traces",
+            xlabel="Time (s)", 
+            ylabel="Signal Intensity")
+        #ax average should be 1/4 the width of ax
+        colsize!(fig.layout, 2, Relative(0.25))
+        
+        # Get z-profile trace for this channel (mean intensity over time)
+        z_profile = project(data, dims=(1,2))[1,1,:,channel]
+        baseline_trace = PhysiologyAnalysis.baseline_trace(z_profile, 
+            window = 5, 
+            lam = 1e4,
+            niter = 100
+            )
+        time_axis = data.t
+        
+        #Calculate the mean of the significant traces for this channel
+        sig_traces_matrix = sig_traces[:,:,channel]
+        mean_sig_trace = mean(sig_traces_matrix, dims=1)[1,:]
+        time_axis_segment = collect(1:length(mean_sig_trace)) * data.dt
+        # Plot the trace
+        if channel == 1
+            #lines!(ax, time_axis, z_profile, color=:green, linewidth=2.5)
+            lines!(ax, time_axis, baseline_trace, color=:green, linewidth=2.5)
+            lines!(ax_average, time_axis_segment, mean_sig_trace, color=:green, linewidth=2.5)
+        else
+            lines!(ax, time_axis, baseline_trace, color=:red, linewidth=2.5)
+            lines!(ax_average, time_axis_segment, mean_sig_trace, color=:red, linewidth=2.5)
+        end
+        delay_time = haskey(analysis.analysis_parameters, :delay_time) ? analysis.analysis_parameters[:delay_time] : nothing
+        vlines!(ax_average, [delay_time], color=:black, linestyle=:dash)
+
+        # Add stimulus lines if available
+        if haskey(data.HeaderDict, "StimulusProtocol")
+            stim_protocol = data.HeaderDict["StimulusProtocol"]
+            println(stim_protocol)
+        end
+    end
+    
+    return fig
+end 
+
+
+"""
+    get_significant_traces(analysis)
+
+Return a 3D array (n_ROIs, n_datapoints, n_channels) of all significant ROI traces.
+All traces are truncated to the global minimum length for consistency.
+"""
+function get_significant_traces(analysis)
+    # Gather all significant traces and their channels
+    traces_list = Vector{Tuple{Int, Vector{Float64}}}()
+    min_length = typemax(Int)
+    n_channels = length(analysis.channels)
+    
+    for (roi_id, traces) in analysis.rois
+        for trace in traces
+            if trace.is_significant
+                push!(traces_list, (trace.channel, trace.dfof))
+                min_length = min(min_length, length(trace.dfof))
+            end
+        end
+    end
+    
+    # If no significant traces, return empty array
+    n_rois = length(traces_list)
+    if n_rois == 0 || min_length == 0
+        return zeros(0, 0, n_channels)
+    end
+    
+    # Allocate output array
+    result = zeros(n_rois, min_length, n_channels)
+    for (i, (ch, dfof)) in enumerate(traces_list)
+        result[i, :, ch] = dfof[1:min_length]
+    end
+    return result
 end 
