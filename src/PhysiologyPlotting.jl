@@ -29,7 +29,7 @@ function __init__()
                using .PhysiologyAnalysis
                import .PhysiologyAnalysis: get_fit_parameters, get_significant_rois
                include("PlottingFunctions/ROIVisualization.jl")
-               export plot_roi_analysis, plot_roi_analysis_averaged
+               export plot_roi_analysis, plot_roi_analysis_averaged, plot_roi_analysis_stitched, plot_analysis, plot_fulltime_analysis, get_significant_traces, get_significant_traces_matrix
           end
      end
 
@@ -46,6 +46,7 @@ function __init__()
                println("PhysiologyAnalysis Loaded")
                using .PhysiologyAnalysis
                import .PhysiologyAnalysis: get_fit_parameters, get_significant_rois
+               import .PhysiologyAnalysis: baseline_trace
                include("PlottingFunctions/ROIVisualization.jl")
                export plot_roi_analysis
           end
