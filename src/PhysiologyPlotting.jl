@@ -25,18 +25,30 @@ function __init__()
           export twophotonprojection, twophotonprojection!
           export plot, plot!
           
-          include("PlottingFunctions/ROIVisualization.jl")
-          export plot_roi_analysis
+          @require PhysiologyAnalysis = "123dc426-2d49-4783-ab3e-573ab3c498a8" begin
+               using .PhysiologyAnalysis
+               import .PhysiologyAnalysis: get_fit_parameters, get_significant_rois
+               include("PlottingFunctions/ROIVisualization.jl")
+               export plot_roi_analysis, plot_roi_analysis_averaged
+          end
      end
 
      @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin
+          println("GLMakie Loaded")
           using .GLMakie #In the requires syntax, you need to include the using .Pkg syntax
           frontend = :GLMakie
           #include("PhysMakie/MakiePlot.jl")
           include("PhysMakie/MakieRecipes.jl")
-          include("PhysMakie/ROIVisualization.jl")
           export experimentplot, experimentplot!
           export plot, plot!
+
+          @require PhysiologyAnalysis = "69cbc4a0-077e-48a7-9b45-fa8b7014b5ca" begin
+               println("PhysiologyAnalysis Loaded")
+               using .PhysiologyAnalysis
+               import .PhysiologyAnalysis: get_fit_parameters, get_significant_rois
+               include("PlottingFunctions/ROIVisualization.jl")
+               export plot_roi_analysis
+          end
      end
 
      @require PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee" begin
