@@ -333,6 +333,15 @@ function plot_analysis(data::Experiment{TWO_PHOTON, T};
         #ax average should be 1/4 the width of ax
         colsize!(fig.layout, 2, Relative(0.25))
         
+        # Link y-axes
+        linkyaxes!(ax, ax_average)
+        
+        # Remove grid and axes
+        # hidespines!(ax)
+        # hidedecorations!(ax)
+        # hidespines!(ax_average)
+        # hidedecorations!(ax_average)
+        
         # Get z-profile trace for this channel (mean intensity over time)
         z_profile = project(data, dims=(1,2))[1,1,:,channel]
         baseline_trace = PhysiologyAnalysis.baseline_trace(z_profile, 
@@ -358,10 +367,44 @@ function plot_analysis(data::Experiment{TWO_PHOTON, T};
         delay_time = haskey(analysis.analysis_parameters, :delay_time) ? analysis.analysis_parameters[:delay_time] : nothing
         vlines!(ax_average, [delay_time], color=:black, linestyle=:dash)
 
+        # Add x and y scale bars to lower left of raw trace axis
+        if channel == 1
+            xbar_length = 25.0  # seconds
+            ybar_length = 0.1   # adjust to your data's scale
+
+            x0 = 40.0#minimum(time_axis) + 0.05 * (maximum(time_axis) - minimum(time_axis))
+            y0 = 0.005#minimum(baseline_trace) + 0.1 * (maximum(baseline_trace) - minimum(baseline_trace))
+            # x scale bar
+            lines!(ax, [x0, x0 + xbar_length], [y0, y0], color=:black, linewidth=3)
+            text!(ax, "$xbar_length s", position=(x0 + xbar_length/2, y0 - 0.1*ybar_length), align=(:center, :center), color=:black)
+        
+            lines!(ax_average, [x0, x0 + xbar_length], [y0, y0], color=:black, linewidth=3)
+            text!(ax_average, "$xbar_length s", position=(x0 + xbar_length/2, y0 - 0.1*ybar_length), align=(:center, :center), color=:black)
+
+            lines!(ax, [x0, x0], [y0, y0 + ybar_length], color=:black, linewidth=3)
+            text!(ax, "$ybar_length", position=(x0 - 0.1*xbar_length, y0 + ybar_length/2), align=(:center, :center), color=:black)
+        else# y scale bar
+            xbar_length = 25.0  # seconds
+            ybar_length = 0.01   # adjust to your data's scale
+
+            x0 = 40.0#minimum(time_axis) + 0.05 * (maximum(time_axis) - minimum(time_axis))
+            y0 = 0.005#minimum(baseline_trace) + 0.1 * (maximum(baseline_trace) - minimum(baseline_trace))
+            
+            lines!(ax, [x0, x0 + xbar_length], [y0, y0], color=:black, linewidth=3)
+            text!(ax, "$xbar_length s", position=(x0 + xbar_length/2, y0 - 0.1*ybar_length), align=(:center, :center), color=:black)
+        
+            lines!(ax_average, [x0, x0 + xbar_length], [y0, y0], color=:black, linewidth=3)
+            text!(ax_average, "$xbar_length s", position=(x0 + xbar_length/2, y0 - 0.1*ybar_length), align=(:center, :center), color=:black)
+
+            lines!(ax, [x0, x0], [y0, y0 + ybar_length], color=:black, linewidth=3)
+            text!(ax, "$ybar_length", position=(x0 - 0.1*xbar_length, y0 + ybar_length/2), align=(:center, :center), color=:black)
+        end
+
         # Add stimulus lines if available
         if haskey(data.HeaderDict, "StimulusProtocol")
             stim_protocol = data.HeaderDict["StimulusProtocol"]
-            println(stim_protocol)
+            stim_end_times = getStimulusEndTime(stim_protocol)
+            vlines!(ax, stim_end_times, color=:black, linestyle=:dash, alpha = 0.5)
         end
     end
     
