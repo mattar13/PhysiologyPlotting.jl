@@ -10,21 +10,27 @@ using PhysiologyAnalysis
  
 
 # ╔═╡This task is for extraction of points, centroids, and ROIs using cellpose
+#Kpuff looks really good
+
+# #We should look through the available files and see which ones fit
+# img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-20hz-100uA001.tif"
+# stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502000.abf"
+
+#Good but a big bubble
+# img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-3s_20hz_30uA_3x006.tif"
+# stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502007.abf"
+
+img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff011.tif"
+stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502015.abf"
+
+#%%
 img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff_3x012.tif"
 stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502017.abf"
-
-#We should look through the available files and see which ones fit
-img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-20hz-100uA001.tif"
-stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502000.abf"
-
-#We should look through the available files and see which ones fit
-img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-20hz-100uA001.tif"
-stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502000.abf"
 
 data2P = readImage(img_fn);
 deinterleave!(data2P) #This seperates the movies into two seperate movies
 
-spike_train = true
+spike_train = false
 if spike_train
     #If we have a electrical stimulus we need to do the spike train analysis
     addStimulus!(data2P, stim_fn, "IN 3", flatten_episodic = true, stimulus_threshold = 0.5)
@@ -35,6 +41,7 @@ else
     addStimulus!(data2P, stim_fn, "IN 2", flatten_episodic = true)
     time2P = data2P.t
 end
+getStimulusProtocol(data2P)
 
 # Split the image into 8x8 pixel ROIs
 pixel_splits_roi!(data2P, 8)
@@ -62,11 +69,18 @@ println("Found $(length(sig_rois)) significant ROIs")
 fit_params = get_fit_parameters(roi_analysis)
 println("Mean amplitude of significant ROIs: ", mean(first.(fit_params)))
 
-fig = plot_roi_analysis(data2P, stim_idx = 2)
-display(fig)
-
-
 #%% Test the new simple analysis plot function
 PhysiologyPlotting.__init__()
 fig_raw = PhysiologyPlotting.plot_analysis(data2P)
-display(fig_raw)
+# display(fig_raw)
+
+#%%
+# Save the raw analysis figure
+save(raw"F:\Data\Analysis\StriatumAnalysis\Potassium Puffs\fig_raw.png", fig_raw)
+
+#%%
+fig = plot_roi_analysis(data2P, stim_idx = 2)
+display(fig)
+
+# Save the ROI analysis figure
+save(raw"F:\Data\Analysis\StriatumAnalysis\Potassium Puffs\fig_roi_analysis.png", fig)
