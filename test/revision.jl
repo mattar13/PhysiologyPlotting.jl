@@ -1,74 +1,72 @@
 using Revise
 using ElectroPhysiology
 using PhysiologyPlotting
-PhysiologyPlotting.frontend
+
 import ElectroPhysiology.create_signal_waveform!
 using Pkg; Pkg.activate("test")
 using GLMakie
+using PhysiologyAnalysis
 #using Pkg; Pkg.activate("test")
  
-#We want to plot images
-file_loc = "G:/Data/Two Photon"
-data2P_fn = "$(file_loc)/2024_09_03_SWCNT_VGGC6/swcntBATH_kpuff_nomf_20um001.tif"
-data2P = readImage(data2P_fn);
 
-xlims = data2P.HeaderDict["xrng"]
-ylims = data2P.HeaderDict["yrng"]
+# ╔═╡This task is for extraction of points, centroids, and ROIs using cellpose
+img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff_3x012.tif"
+stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502017.abf"
+
+#We should look through the available files and see which ones fit
+img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-20hz-100uA001.tif"
+stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502000.abf"
+
+#We should look through the available files and see which ones fit
+img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-20hz-100uA001.tif"
+stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502000.abf"
+
+data2P = readImage(img_fn);
 deinterleave!(data2P) #This seperates the movies into two seperate movies
 
-val = Observable(xlims)
-minimum(val[])
-
-PhysiologyPlotting.__init__()
-twophotonprojection(data2P, dims = (1, 2), channel = 2)
-twophotonframe(data2P, 1, channel = 2)
-
-#%%
-fig = Figure(figsize = (800, 800))
-ax1 = Axis(fig[1,1], aspect = 1.0, title = "Frame 1")
-frame = Observable(1)
-tp = twophotonframe!(ax1, data2P, frame, channel = 2, colorrange = (0.0, 0.02))
-fig
-record(fig, "test/test.mp4", enumerate(data2P.t)) do (i, t)
-     println(i)
-     tp.frame[] = i
-     ax1.title = "Frame $i"
+spike_train = true
+if spike_train
+    #If we have a electrical stimulus we need to do the spike train analysis
+    addStimulus!(data2P, stim_fn, "IN 3", flatten_episodic = true, stimulus_threshold = 0.5)
+    stim_protocol = getStimulusProtocol(data2P)
+    spike_train_group!(stim_protocol, 3.0) 
+else
+    #Else we can just use the stimulus to get the time of the stimulus
+    addStimulus!(data2P, stim_fn, "IN 2", flatten_episodic = true)
+    time2P = data2P.t
 end
-#%%
 
-#%%
-img_arr = get_all_frames(data2P)
-grn_zstack = img_arr[:,:,:,1]
-grn_zproj = project(data2P, dims = (3))[:,:,1,1]
-grn_trace = project(data2P, dims = (1,2))[1,1,:,1]
+# Split the image into 8x8 pixel ROIs
+pixel_splits_roi!(data2P, 8)
 
-red_zstack = img_arr[:,:,:,2]
-red_zproj = project(data2P, dims = (3))[:,:,1,2]
-red_trace = project(data2P, dims = (1,2))[1,1,:,2]
+# Process all ROIs for channel 2 and stimulus 2
+roi_analysis = process_rois(data2P; 
+    channels=[1, 2],           # Only process channel 2
+    stim_indices=nothing,      # Only process the second stimulus
+    delay_time=50.0,       # 50ms delay time for analysis
+    sig_window=50.0,        # 50ms window to look for significant responses after stimulus
+    window = 15,             # 15-point window for moving average
+    n_stds = 5.0, 
+    lam = 1e4,  #These are baselineing parameters
+    niter = 100
+)
 
-#%% Plot the figure
-fig = Figure(size = (1000, 800))
-ax1a = GLMakie.Axis(fig[1,1], title = "Green Channel", aspect = 1.0)
-ax1b = GLMakie.Axis(fig[2,1], title = "Red Channel", aspect = 1.0)
+# Store the analysis in the experiment's HeaderDict
+# data2P.HeaderDict["ROI_Analysis"] = roi_analysis
+data2P.HeaderDict["ROI_Analysis"]
+# Get all significant ROIs and print summary
+sig_rois = get_significant_rois(roi_analysis)
+println("Found $(length(sig_rois)) significant ROIs")
 
-ax2a = GLMakie.Axis(fig[1,2], title = "Green Trace")#, aspect = 1.0)
-ax2b = GLMakie.Axis(fig[2,2], title = "Red Trace")#, aspect = 1.0)
+# Get fit parameters and print summary statistics
+fit_params = get_fit_parameters(roi_analysis)
+println("Mean amplitude of significant ROIs: ", mean(first.(fit_params)))
 
-mu_grn = mean(grn_zstack)
-sig_grn = std(grn_zstack)*2
-
-mu_red = mean(red_zstack)
-sig_red = std(red_zstack)*2
-
-hm2a = heatmap!(ax1a, xlims, ylims, grn_zstack[:,:,1], colormap = Reverse(:algae), colorrange = (0.0, mu_grn + sig_grn))
-hm2b = heatmap!(ax1b, xlims, ylims, red_zstack[:,:,1], colormap = :gist_heat, colorrange = (0.0, mu_red + 2sig_red), alpha = 1.0)
+fig = plot_roi_analysis(data2P, stim_idx = 2)
+display(fig)
 
 
-
-#%% 
-root = raw"F:\Data\Patching"
-file = "2024_01_25_ChAT-RFP_DSGC/Cell1/24125005.abf"
-filename = joinpath(root, file)
-data = readABF(filename)
-create_signal_waveform!(data, "Cmd 0")
-experimentplot(data)
+#%% Test the new simple analysis plot function
+PhysiologyPlotting.__init__()
+fig_raw = PhysiologyPlotting.plot_analysis(data2P)
+display(fig_raw)

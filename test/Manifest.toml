@@ -1509,9 +1509,11 @@ version = "0.5.3"
 
 [[deps.PhysiologyAnalysis]]
 deps = ["CSV", "DataFrames", "Dates", "ElectroPhysiology", "FileIO", "GLMakie", "HypothesisTests", "ImageFiltering", "ImageMagick", "Images", "Interpolations", "LinearAlgebra", "LsqFit", "OffsetArrays", "Peaks", "Polynomials", "ProgressMeter", "Requires", "SparseArrays", "Statistics", "StatsBase"]
-git-tree-sha1 = "6ed70263e54b8226923facb6fe94d5ccbf7f7085"
+git-tree-sha1 = "fdacba89a4223af2bf2a3cb07208ad13421b404c"
+repo-rev = "main"
+repo-url = "https://github.com/mattar13/PhysiologyAnalysis.jl.git"
 uuid = "69cbc4a0-077e-48a7-9b45-fa8b7014b5ca"
-version = "0.6.32"
+version = "0.6.36"
 
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
