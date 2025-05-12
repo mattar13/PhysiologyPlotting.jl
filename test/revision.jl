@@ -11,26 +11,21 @@ using PhysiologyAnalysis
 
 # ╔═╡This task is for extraction of points, centroids, and ROIs using cellpose
 #Kpuff looks really good
-
-# #We should look through the available files and see which ones fit
-# img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-20hz-100uA001.tif"
-# stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502000.abf"
-
-#Good but a big bubble
-# img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-3s_20hz_30uA_3x006.tif"
-# stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502007.abf"
-
 img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff011.tif"
 stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502015.abf"
 
-#%%
 img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff_3x012.tif"
 stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502017.abf"
+
+#%%
+#Electrical Stimulus
+img_fn = raw"H:\Data\Two Photon\2025-03-05-GRAB-DA-STRIATUM\grab-da_b4_str_stim500uA_3x_NOMF046.tif"
+stim_fn = raw"H:\Data\Patching\2025-03-26-GRAB-DA_STR\25326050.abf"
 
 data2P = readImage(img_fn);
 deinterleave!(data2P) #This seperates the movies into two seperate movies
 
-spike_train = false
+spike_train = true
 if spike_train
     #If we have a electrical stimulus we need to do the spike train analysis
     addStimulus!(data2P, stim_fn, "IN 3", flatten_episodic = true, stimulus_threshold = 0.5)
@@ -76,11 +71,11 @@ fig_raw = PhysiologyPlotting.plot_analysis(data2P)
 
 #%%
 # Save the raw analysis figure
-save(raw"F:\Data\Analysis\StriatumAnalysis\Potassium Puffs\fig_raw.png", fig_raw)
+save(raw"H:\Data\Analysis\fig_raw_striatum_elec.png", fig_raw)
 
 #%%
 fig = plot_roi_analysis(data2P, stim_idx = 2)
 display(fig)
+save(raw"H:\Data\Analysis\fig_roi_analysis_striatum_elec.png", fig)
 
 # Save the ROI analysis figure
-save(raw"F:\Data\Analysis\StriatumAnalysis\Potassium Puffs\fig_roi_analysis.png", fig)
