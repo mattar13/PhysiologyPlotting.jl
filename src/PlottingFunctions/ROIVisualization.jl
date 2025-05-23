@@ -152,7 +152,7 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
         
         # Add stimulus time indicator if available
         if haskey(analysis.analysis_parameters, :delay_time)
-            delay_time = analysis.analysis_parameters[:delay_time]
+            delay_time = analysis.analysis_parameters[:analysis_window_start]
             vlines!(ax2, [delay_time], color=:red, linestyle=:dash, label="Stimulus")
             vlines!(ax3, [delay_time], color=:red, linestyle=:dash, label="Stimulus")
         end
