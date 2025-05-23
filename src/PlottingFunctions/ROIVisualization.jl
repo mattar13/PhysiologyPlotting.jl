@@ -38,7 +38,7 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
     # Process each channel
     for (ch_idx, channel) in enumerate(channels_to_process)
         # Get significant ROIs for this channel and stimulus
-        sig_rois = get_significant_rois(analysis, stim_idx, channel)
+        sig_rois = get_significant_rois(analysis, channel_idx = channel)
         
         # Create a 2x2 grid for this channel
         gl_channel = fig[1, ch_idx] = GridLayout()
