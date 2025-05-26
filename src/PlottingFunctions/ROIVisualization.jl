@@ -150,11 +150,20 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
                 color=:red)
         end
         
-        # Add stimulus time indicator if available
-        if haskey(analysis.analysis_parameters, :delay_time)
-            delay_time = analysis.analysis_parameters[:analysis_window_start]
-            vlines!(ax2, [delay_time], color=:red, linestyle=:dash, label="Stimulus")
-            vlines!(ax3, [delay_time], color=:red, linestyle=:dash, label="Stimulus")
+        # Add analysis window visualization
+        if haskey(analysis.analysis_parameters, :analysis_window_start)
+            window_start = analysis.analysis_parameters[:analysis_window_start]
+            window_end = analysis.analysis_parameters[:analysis_window_end]
+            
+            # Add analysis window
+            band!(ax2, [window_start, window_end], [minimum(mean_trace), minimum(mean_trace)], 
+                [maximum(mean_trace), maximum(mean_trace)], color=(:gray, 0.2), label="Analysis Window")
+            band!(ax3, [window_start, window_end], [minimum(trace.dfof), minimum(trace.dfof)], 
+                [maximum(trace.dfof), maximum(trace.dfof)], color=(:gray, 0.2), label="Analysis Window")
+            
+            # Add vertical lines at window boundaries
+            vlines!(ax2, [window_start, window_end], color=:black, linestyle=:dash, alpha=0.5)
+            vlines!(ax3, [window_start, window_end], color=:black, linestyle=:dash, alpha=0.5)
         end
         
         # Add legend only for mean response
@@ -279,13 +288,21 @@ function plot_roi_analysis_stitched(data::Experiment{TWO_PHOTON, T};
             lines!(ax_stimulus, mean_time_axis, all_mean_trace, color=:blue, linewidth=2, label="Mean (n=$(length(all_traces)))")
         end
         
-        # Add stimulus time indicator if available
-        if haskey(analysis.analysis_parameters, :delay_time)
-            delay_time = analysis.analysis_parameters[:delay_time]
-            vlines!(ax_stitched, [delay_time], color=:red, linestyle=:dash)
-            vlines!(ax_stimulus, [delay_time], color=:red, linestyle=:dash)
+        # Add analysis window visualization
+        if haskey(analysis.analysis_parameters, :analysis_window_start)
+            window_start = analysis.analysis_parameters[:analysis_window_start]
+            window_end = analysis.analysis_parameters[:analysis_window_end]
+            
+            # Add analysis window
+            band!(ax_stitched, [window_start, window_end], [minimum(mean_trace), minimum(mean_trace)], 
+                [maximum(mean_trace), maximum(mean_trace)], color=(:gray, 0.2), label="Analysis Window")
+            band!(ax_stimulus, [window_start, window_end], [minimum(all_mean_trace), minimum(all_mean_trace)], 
+                [maximum(all_mean_trace), maximum(all_mean_trace)], color=(:gray, 0.2), label="Analysis Window")
+            
+            # Add vertical lines at window boundaries
+            vlines!(ax_stitched, [window_start, window_end], color=:black, linestyle=:dash, alpha=0.5)
+            vlines!(ax_stimulus, [window_start, window_end], color=:black, linestyle=:dash, alpha=0.5)
         end
-        # axislegend(ax_stitched, position=:rt)
     end
     return fig
 end 
@@ -365,7 +382,25 @@ function plot_analysis(data::Experiment{TWO_PHOTON, T};
             lines!(ax_average, time_axis_segment, mean_sig_trace, color=:red, linewidth=2.5)
         end
         delay_time = haskey(analysis.analysis_parameters, :delay_time) ? analysis.analysis_parameters[:delay_time] : nothing
-        vlines!(ax_average, [delay_time], color=:black, linestyle=:dash)
+        window_start = haskey(analysis.analysis_parameters, :analysis_window_start) ? analysis.analysis_parameters[:analysis_window_start] : nothing
+        window_end = haskey(analysis.analysis_parameters, :analysis_window_end) ? analysis.analysis_parameters[:analysis_window_end] : nothing
+        
+        if !isnothing(delay_time)
+            vlines!(ax_average, [delay_time], color=:black, linestyle=:dash)
+        end
+        
+        # Add analysis window visualization
+        if haskey(analysis.analysis_parameters, :analysis_window_start)
+            window_start = analysis.analysis_parameters[:analysis_window_start]
+            window_end = analysis.analysis_parameters[:analysis_window_end]
+            
+            # Add analysis window
+            band!(ax_average, [window_start, window_end], [minimum(mean_sig_trace), minimum(mean_sig_trace)], 
+                [maximum(mean_sig_trace), maximum(mean_sig_trace)], color=(:gray, 0.2), label="Analysis Window")
+            
+            # Add vertical lines at window boundaries
+            vlines!(ax_average, [window_start, window_end], color=:black, linestyle=:dash, alpha=0.5)
+        end
 
         # Add x and y scale bars to lower left of raw trace axis
         if channel == 1
