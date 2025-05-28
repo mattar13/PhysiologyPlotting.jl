@@ -256,7 +256,8 @@ function Makie.plot!(st::StimulusTiming)
     # Ensure these functions are available and work with stim_protocol object
     start_times = getStimulusStartTime(stim_protocol)
     end_times = getStimulusEndTime(stim_protocol)
-    
+    # println("Start times: $start_times")
+    # println("End times: $end_times")
     # Plot start time lines if enabled
     if st.show_start[]
         vlines!(st, start_times, 
@@ -277,34 +278,11 @@ function Makie.plot!(st::StimulusTiming)
     
     # Plot stimulus span if enabled
     if st.show_span[]
-        # Ensure start_times and end_times are iterable and of the same length
-        if length(start_times) != length(end_times)
-            @warn "Mismatch in number of start and end times. Cannot draw spans."
-        else
-            for (idx, (start_val, end_val)) in enumerate(zip(start_times, end_times))
-               @info "StimulusTiming: Preparing vspan $(idx)"
-               @info "  start_val: $(start_val) (Type: $(typeof(start_val)))"
-               @info "  end_val: $(end_val) (Type: $(typeof(end_val)))"
-               @info "  span_color: $(st.span_color[]) (Type: $(typeof(st.span_color[])))"
-               @info "  span_alpha: $(st.span_alpha[]) (Type: $(typeof(st.span_alpha[])))"
-               processed_start_val = typeof(start_val) <: Quantity ? ustrip(start_val) : start_val
-               processed_end_val = typeof(end_val) <: Quantity ? ustrip(end_val) : end_val
-               @info "  Processed start_val: $(processed_start_val) (Type: $(typeof(processed_start_val)))"
-               @info "  Processed end_val: $(processed_end_val) (Type: $(typeof(processed_end_val)))"
-
-               current_color_tuple = (st.span_color[], st.span_alpha[])
-               @info "  Color tuple for vspan: $(current_color_tuple) (Type: $(typeof(current_color_tuple)))"
-               
-               try
-                   vspan!(st, [processed_start_val, processed_end_val],
-                       color = current_color_tuple
-                   )
-                   @info "StimulusTiming: vspan $(idx) plotted successfully."
-               catch e
-                   @error "StimulusTiming: Error during vspan! call for span $(idx)" exception=(e, catch_backtrace())
-                   # Optionally rethrow or handle, for now, let's log and continue if possible
-               end
-            end
+        for i in eachindex(start_times)
+            vspan!(st, [start_times[i], end_times[i]],
+                color = st.span_color[],
+                alpha = st.span_alpha[]
+            )
         end
     end
     
@@ -329,11 +307,10 @@ A recipe for adding scale bars to plots. This recipe adds:
 - `color`: Color of the scale bars (default: :black)
 - `linewidth`: Width of the scale bars (default: 2.0)
 - `text_color`: Color of the scale bar labels (default: :black)
-- `text_size`: Size of the scale bar labels (default: 12)
+- `fontsize`: Size of the scale bar labels (default: 12)
 - `x_label`: Label for the x-scale bar (default: nothing, will use length_x value)
 - `y_label`: Label for the y-scale bar (default: nothing, will use length_y value)
-- `x_offset`: Offset for x-scale bar label from the bar (default: 0.1 * length_y)
-- `y_offset`: Offset for y-scale bar label from the bar (default: 0.1 * length_x)
+- `offset_ratio`: Ratio of axis range to use for text offset (default: 0.02)
 
 # Example
 ```julia
@@ -354,11 +331,10 @@ scale_bar!(ax, start_x=0.1, length_x=10.0, start_y=0.1, length_y=5.0)
         color = :black,
         linewidth = 2.0,
         text_color = :black,
-        text_size = 12,
+        fontsize = 12,
         x_label = nothing,
         y_label = nothing,
-        x_offset = Observable(0.1),
-        y_offset = Observable(0.1)
+        offset_ratio = 0.02
     )
 end
 
@@ -369,42 +345,35 @@ Internal plotting function for ScaleBar recipe. Adds scale bars to the current p
 based on the specified positions and lengths.
 """
 function Makie.plot!(sb::ScaleBar)
-    # Get the current axis limits
-    ax = current_axis()
-    xlims = ax.limits[][1]
-    ylims = ax.limits[][2]
+    # Get the parent axis
+    ax = sb.parent
     
-    # Calculate offsets as fractions of the plot size
+    # Get current axis limits
+    xlims = ax.finallimits[].origin[1], ax.finallimits[].origin[1] + ax.finallimits[].widths[1]
+    ylims = ax.finallimits[].origin[2], ax.finallimits[].origin[2] + ax.finallimits[].widths[2]
+    
+    # Calculate offsets based on axis ranges
     x_range = xlims[2] - xlims[1]
     y_range = ylims[2] - ylims[1]
-    
-    # Update offsets if they're Observables
-    if sb.x_offset isa Observable
-        sb.x_offset[] = 0.1 * y_range
-    end
-    if sb.y_offset isa Observable
-        sb.y_offset[] = 0.1 * x_range
-    end
+    offset = sb.offset_ratio[] * min(x_range, y_range)
     
     # Plot x-scale bar if start_x is specified
     if !isnothing(sb.start_x[])
         x_start = sb.start_x[]
         x_end = x_start + sb.length_x[]
-        y_pos = isnothing(sb.start_y[]) ? ylims[1] + 0.1 * y_range : sb.start_y[]
+        y_pos = sb.start_y[] === nothing ? ylims[1] + offset : sb.start_y[]
         
-        # Draw the x-scale bar
         lines!(sb, [x_start, x_end], [y_pos, y_pos],
             color = sb.color[],
             linewidth = sb.linewidth[]
         )
         
-        # Add x-scale bar label
-        x_label = isnothing(sb.x_label[]) ? "$(sb.length_x[])" : sb.x_label[]
-        text!(sb, x_label,
-            position = (x_start + sb.length_x[]/2, y_pos - sb.x_offset[]),
+        x_label_text = isnothing(sb.x_label[]) ? "$(sb.length_x[])" : sb.x_label[]
+        text!(sb, x_label_text,
+            position = (x_start + sb.length_x[]/2, y_pos - offset),
             align = (:center, :top),
             color = sb.text_color[],
-            textsize = sb.text_size[]
+            fontsize = sb.fontsize[]
         )
     end
     
@@ -412,24 +381,22 @@ function Makie.plot!(sb::ScaleBar)
     if !isnothing(sb.start_y[])
         y_start = sb.start_y[]
         y_end = y_start + sb.length_y[]
-        x_pos = isnothing(sb.start_x[]) ? xlims[1] + 0.1 * x_range : sb.start_x[]
+        x_pos = sb.start_x[] === nothing ? xlims[1] + offset : sb.start_x[]
         
-        # Draw the y-scale bar
         lines!(sb, [x_pos, x_pos], [y_start, y_end],
             color = sb.color[],
             linewidth = sb.linewidth[]
         )
         
-        # Add y-scale bar label
-        y_label = isnothing(sb.y_label[]) ? "$(sb.length_y[])" : sb.y_label[]
-        text!(sb, y_label,
-            position = (x_pos - sb.y_offset[], y_start + sb.length_y[]/2),
+        y_label_text = isnothing(sb.y_label[]) ? "$(sb.length_y[])" : sb.y_label[]
+        text!(sb, y_label_text,
+            position = (x_pos - offset, y_start + sb.length_y[]/2),
             align = (:right, :center),
             color = sb.text_color[],
-            textsize = sb.text_size[],
-            rotation = -π/2
+            fontsize = sb.fontsize[],
+            rotation = -pi/2 # Makie uses radians for rotation
         )
     end
     
-    sb
+    return sb
 end
