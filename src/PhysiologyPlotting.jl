@@ -40,7 +40,11 @@ function __init__()
           #include("PhysMakie/MakiePlot.jl")
           include("PhysMakie/MakieRecipes.jl")
           export experimentplot, experimentplot!
+          export twophotonframe, twophotonframe!
+          export twophotonprojection, twophotonprojection!
           export plot, plot!
+          export stimulustiming, stimulustiming!
+          export scalebar, scalebar!
 
           @require PhysiologyAnalysis = "69cbc4a0-077e-48a7-9b45-fa8b7014b5ca" begin
                println("PhysiologyAnalysis Loaded")
