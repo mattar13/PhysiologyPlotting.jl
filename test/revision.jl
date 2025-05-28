@@ -2,76 +2,64 @@ using Revise
 using ElectroPhysiology
 using PhysiologyPlotting
 
-import ElectroPhysiology.create_signal_waveform!
 using Pkg; Pkg.activate("test")
 using GLMakie
 using PhysiologyAnalysis
 #using Pkg; Pkg.activate("test")
  
-
-# ╔═╡This task is for extraction of points, centroids, and ROIs using cellpose
-#Kpuff looks really good
-img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff011.tif"
-stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502015.abf"
-
-img_fn = raw"F:\Data\Two Photon\2025-05-02-GRAB-DA-nirCAT-STR\grab-nircat-str-kpuff_3x012.tif"
-stim_fn = raw"F:\Data\Patching\2025-05-02-GRAB-DA-STR\25502017.abf"
-
-#%%
 #Electrical Stimulus
-img_fn = raw"H:\Data\Two Photon\2025-03-05-GRAB-DA-STRIATUM\grab-da_b4_str_stim500uA_3x_NOMF046.tif"
-stim_fn = raw"H:\Data\Patching\2025-03-26-GRAB-DA_STR\25326050.abf"
+img_fn = raw"F:\Data\Two Photon\2025-03-05-GRAB-DA-STRIATUM\grab-da_b4_str_stim500uA_3x_NOMF046.tif"
+stim_fn = raw"F:\Data\Patching\2025-03-26-GRAB-DA_STR\25326050.abf"
 
-data2P = readImage(img_fn);
-deinterleave!(data2P) #This seperates the movies into two seperate movies
+img_exp = readImage(img_fn);
+deinterleave!(img_exp)
+stim_exp = readABF(stim_fn);
+addStimulus!(img_exp, stim_exp, "IN 3", flatten_episodic = true, stimulus_threshold = 0.5)
+stim_protocol = getStimulusProtocol(img_exp)
+spike_train_group!(stim_protocol, 3.0)
 
-spike_train = true
-if spike_train
-    #If we have a electrical stimulus we need to do the spike train analysis
-    addStimulus!(data2P, stim_fn, "IN 3", flatten_episodic = true, stimulus_threshold = 0.5)
-    stim_protocol = getStimulusProtocol(data2P)
-    spike_train_group!(stim_protocol, 3.0) 
-else
-    #Else we can just use the stimulus to get the time of the stimulus
-    addStimulus!(data2P, stim_fn, "IN 2", flatten_episodic = true)
-    time2P = data2P.t
-end
-getStimulusProtocol(data2P)
-
-# Split the image into 8x8 pixel ROIs
-pixel_splits_roi!(data2P, 8)
-
-# Process all ROIs for channel 2 and stimulus 2
-roi_analysis = process_rois(data2P; 
-    channels=[1, 2],           # Only process channel 2
-    stim_indices=nothing,      # Only process the second stimulus
-    delay_time=50.0,       # 50ms delay time for analysis
-    sig_window=50.0,        # 50ms window to look for significant responses after stimulus
-    window = 15,             # 15-point window for moving average
-    n_stds = 5.0, 
-    lam = 1e4,  #These are baselineing parameters
+# Example of using stimulus timing and scale bar recipes
+z_profile = project(img_exp, dims=(1,2))[1,1,:,1]
+baseline_trace = PhysiologyAnalysis.baseline_trace(z_profile, 
+    window = 5, 
+    lam = 1e4,
     niter = 100
 )
+time_axis = data2P.t
 
-# Store the analysis in the experiment's HeaderDict
-# data2P.HeaderDict["ROI_Analysis"] = roi_analysis
-data2P.HeaderDict["ROI_Analysis"]
-# Get all significant ROIs and print summary
-sig_rois = get_significant_rois(roi_analysis)
-println("Found $(length(sig_rois)) significant ROIs")
+#%% Plot 
+fig = Figure(size=(800, 400))
+ax = Axis(fig[1,1], 
+    title="Example with Stimulus Timing and Scale Bars",
+    xlabel="Time (s)",
+    ylabel="Signal Intensity"
+)
 
-# Get fit parameters and print summary statistics
-fit_params = get_fit_parameters(roi_analysis)
-println("Mean amplitude of significant ROIs: ", mean(first.(fit_params)))
+# Plot the z-profile trace for channel 1
+lines!(ax, time_axis, baseline_trace, color=:green, linewidth=2.5)
+# Add scale bars
 
-#%% Test the new simple analysis plot function
-PhysiologyPlotting.__init__()
-fig_raw = PhysiologyPlotting.plot_analysis(data2P)
-# display(fig_raw)
+stimulustiming!(ax, img_exp,
+    show_start = true,
+    show_end = true,
+    show_span = true,
+    start_color = :blue,
+    end_color = :red,
+    span_color = :gray,
+    span_alpha = 0.25
+)
+display(fig)
 
 #%%
-# Save the raw analysis figure
-save(raw"H:\Data\Analysis\fig_raw_striatum_elec.png", fig_raw)
+scalebar!(ax, 
+    start_x = 40.0,  # Start at 40 seconds
+    length_x = 25.0, # 25 second scale bar
+    start_y = 0.005, # Start at 0.005 intensity
+    length_y = 0.1,  # 0.1 intensity scale bar
+    x_label = "25 s",
+    y_label = "0.1"
+)
+fig
 
 #%%
 fig = plot_roi_analysis(data2P, stim_idx = 2)
