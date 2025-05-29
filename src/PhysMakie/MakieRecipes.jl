@@ -223,9 +223,9 @@ stimulus_timing!(ax, experiment, show_start=false, show_span=true)
 """
 @recipe(StimulusTiming, experiment) do scene
     Attributes(
-        show_start = true,
+        show_start = false,
         show_end = true,
-        show_span = true,
+        # show_span = true,
         start_color = :blue,
         end_color = :red,
         span_color = :gray,
@@ -256,8 +256,8 @@ function Makie.plot!(st::StimulusTiming)
     # Ensure these functions are available and work with stim_protocol object
     start_times = getStimulusStartTime(stim_protocol)
     end_times = getStimulusEndTime(stim_protocol)
-    # println("Start times: $start_times")
-    # println("End times: $end_times")
+    println("Start times: $start_times")
+    println("End times: $end_times")
     # Plot start time lines if enabled
     if st.show_start[]
         vlines!(st, start_times, 
@@ -277,14 +277,15 @@ function Makie.plot!(st::StimulusTiming)
     end
     
     # Plot stimulus span if enabled
-    if st.show_span[]
-        for i in eachindex(start_times)
-            vspan!(st, [start_times[i], end_times[i]],
-                color = st.span_color[],
-                alpha = st.span_alpha[]
-            )
-        end
-    end
+    # if st.show_span[]
+    #     for i in eachindex(start_times)
+    #         span_color = @lift(RGBA($(st.span_color[]), $(st.span_alpha[])))
+    #         vspan!(st, 
+    #             [start_times[i], end_times[i]],
+    #             color = span_color
+    #         )
+    #     end
+    # end
     
     st
 end

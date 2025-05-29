@@ -7,50 +7,18 @@ using GLMakie
 using PhysiologyAnalysis
 #using Pkg; Pkg.activate("test")
  
-#Electrical Stimulus
-img_fn = raw"F:\Data\Two Photon\2025-03-05-GRAB-DA-STRIATUM\grab-da_b4_str_stim500uA_3x_NOMF046.tif"
-stim_fn = raw"F:\Data\Patching\2025-03-26-GRAB-DA_STR\25326050.abf"
+#Loading data for 10mM Dopamine 
+img_da_10mM_fn = raw"F:\Data\Two Photon\2025-05-19-nirCAT-STR-DPUFF\nirCAT_s2_10mM_mq010.tif"
+stim_da_10mM_fn = raw"F:\Data\Patching\2025-05-19-nirCAT-str\25519016.abf"
+da_10mM_data = load_puffing_data(img_da_10mM_fn, stim_da_10mM_fn, split_channel = false, main_channel = :red)
 
-img_exp = readImage(img_fn);
-deinterleave!(img_exp)
-stim_exp = readABF(stim_fn);
-addStimulus!(img_exp, stim_fn, "IN 3"; flatten_episodic = true, stimulus_threshold = 0.5)
+fig_roi = plot_roi_analysis(da_10mM_data["experiment"], stim_idx = 2)
 
-stim_protocol = getStimulusProtocol(img_exp)
+experiment = da_10mM_data["experiment"]
+getStimulusProtocol(experiment)
+fig, ax = twophotonprojection(experiment, dims = (1, 2))
+stimulustiming!(ax, experiment)
 
-spike_train_group!(stim_protocol, 3.0)
-stim_protocol.timestamps
-
-# Example of using stimulus timing and scale bar recipes
-z_profile = project(img_exp, dims=(1,2))[1,1,:,1]
-baseline_trace = PhysiologyAnalysis.baseline_trace(z_profile, 
-    window = 5, 
-    lam = 1e4,
-    niter = 100
-)
-time_axis = img_exp.t
-
-#%% Plot 
-fig = Figure(size=(800, 400))
-ax = Axis(fig[1,1], 
-    title="Example with Stimulus Timing and Scale Bars",
-    xlabel="Time (s)",
-    ylabel="Signal Intensity"
-)
-
-# Plot the z-profile trace for channel 1
-lines!(ax, time_axis, baseline_trace, color=:green, linewidth=2.5)
-# Add scale bars
-
-stimulustiming!(ax, img_exp,
-    show_start = true,
-    show_end = true,
-    show_span = false,
-    start_color = :blue,
-    end_color = :red,
-    span_color = :gray,
-    span_alpha = 0.25
-)
 
 scalebar!(ax, 
     start_x = 40.0,  # Start at 40 seconds
