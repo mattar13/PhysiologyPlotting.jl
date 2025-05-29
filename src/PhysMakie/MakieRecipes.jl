@@ -250,7 +250,7 @@ function Makie.plot!(st::StimulusTiming)
         return st # Return the plot object early
     end
     
-    stim_protocol = exp.HeaderDict["StimulusProtocol"]
+    stim_protocol = getStimulusProtocol(exp)
     
     # Get stimulus start and end times
     # Ensure these functions are available and work with stim_protocol object
