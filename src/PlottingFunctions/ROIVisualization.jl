@@ -104,6 +104,8 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
         weighted_mask = zeros(size(roi_mask))
         tau_off_mask = zeros(size(roi_mask))
         
+        # Get ROI coordinates for significant ROIs
+        sig_roi_coords = Dict{Int, Tuple{UnitRange{Int}, UnitRange{Int}}}()
         for roi_id in keys(analysis.rois)
             if roi_id in sig_rois
                 traces = filter(t -> t.channel == channel && t.stimulus_index == stim_idx, analysis.rois[roi_id])
@@ -112,6 +114,14 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
                 weighted_mask[roi_mask .== roi_id] .= max_response
                 if !isnothing(trace.fit_parameters) && length(trace.fit_parameters) >= 3
                     tau_off_mask[roi_mask .== roi_id] .= trace.fit_parameters[3]
+                end
+                
+                # Get ROI coordinates
+                roi_indices = findall(roi_mask .== roi_id)
+                if !isempty(roi_indices)
+                    rows = getindex.(roi_indices, 1)
+                    cols = getindex.(roi_indices, 2)
+                    sig_roi_coords[roi_id] = (minimum(rows):maximum(rows), minimum(cols):maximum(cols))
                 end
             end
         end
@@ -126,11 +136,37 @@ function plot_roi_analysis(data::Experiment{TWO_PHOTON, T};
                 colormap=:viridis,
                 colorrange=(0, maximum(weighted_mask)))
             Colorbar(gl_channel[2,2], hm_weighted, label="dF/F", width=15, vertical=true)
+            
+            # Draw red boxes around significant ROIs
+            for (roi_id, (rows, cols)) in sig_roi_coords
+                # Convert pixel coordinates to data coordinates
+                x1 = xlims[1] + (cols[1] - 1) * (xlims[2] - xlims[1]) / size(roi_mask, 2)
+                x2 = xlims[1] + (cols[end]) * (xlims[2] - xlims[1]) / size(roi_mask, 2)
+                y1 = ylims[1] + (rows[1] - 1) * (ylims[2] - ylims[1]) / size(roi_mask, 1)
+                y2 = ylims[1] + (rows[end]) * (ylims[2] - ylims[1]) / size(roi_mask, 1)
+                
+                # Draw rectangle
+                lines!(ax_weighted, [x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], 
+                    color=:red, linewidth=2)
+            end
         else
             text!(ax_weighted, "No significant ROIs found", 
                 position=(mean(xlims), mean(ylims)),
                 align=(:center, :center),
                 color=:red)
+        end
+        
+        # Add red boxes to max projection plot as well
+        for (roi_id, (rows, cols)) in sig_roi_coords
+            # Convert pixel coordinates to data coordinates
+            x1 = xlims[1] + (cols[1] - 1) * (xlims[2] - xlims[1]) / size(roi_mask, 2)
+            x2 = xlims[1] + (cols[end]) * (xlims[2] - xlims[1]) / size(roi_mask, 2)
+            y1 = ylims[1] + (rows[1] - 1) * (ylims[2] - ylims[1]) / size(roi_mask, 1)
+            y2 = ylims[1] + (rows[end]) * (ylims[2] - ylims[1]) / size(roi_mask, 1)
+            
+            # Draw rectangle
+            lines!(ax1, [x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], 
+                color=:red, linewidth=2)
         end
         
         # 5. Tau Off map (bottom right)
