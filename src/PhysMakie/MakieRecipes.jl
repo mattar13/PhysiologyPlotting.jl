@@ -294,24 +294,27 @@ end
 export stimulustiming!
 
 """
-    @recipe(ScaleBar)
+    scalebar!(ax; origin=(0.0, 0.0), length_x=nothing, length_y=nothing,
+             color=:black, linewidth=2.0, text_color=:black, fontsize=12,
+             x_label=nothing, y_label=nothing, offset_x_ratio=0.02, offset_y_ratio=0.02)
 
-A recipe for adding scale bars to plots. This recipe adds:
+Add scale bars to a plot. This function adds:
 1. An optional x-scale bar (horizontal)
 2. An optional y-scale bar (vertical)
 
-# Attributes
-- `start_x`: Starting x-position for the x-scale bar (default: nothing, meaning no x-scale bar)
-- `length_x`: Length of the x-scale bar in data units (default: 1.0)
-- `start_y`: Starting y-position for the y-scale bar (default: nothing, meaning no y-scale bar)
-- `length_y`: Length of the y-scale bar in data units (default: 1.0)
+# Arguments
+- `ax`: The axis to add scale bars to
+- `origin`: (x,y) position where the scale bars will start (default: (0.0, 0.0))
+- `length_x`: Length of the x-scale bar in data units (default: nothing, meaning no x-scale bar)
+- `length_y`: Length of the y-scale bar in data units (default: nothing, meaning no y-scale bar)
 - `color`: Color of the scale bars (default: :black)
 - `linewidth`: Width of the scale bars (default: 2.0)
 - `text_color`: Color of the scale bar labels (default: :black)
 - `fontsize`: Size of the scale bar labels (default: 12)
 - `x_label`: Label for the x-scale bar (default: nothing, will use length_x value)
 - `y_label`: Label for the y-scale bar (default: nothing, will use length_y value)
-- `offset_ratio`: Ratio of axis range to use for text offset (default: 0.02)
+- `offset_x_ratio`: Ratio of x-axis range to use for text offset (default: 0.02)
+- `offset_y_ratio`: Ratio of y-axis range to use for text offset (default: 0.02)
 
 # Example
 ```julia
@@ -320,84 +323,63 @@ ax = Axis(fig[1,1])
 # First plot your data
 lines!(ax, x, y)
 # Then add scale bars
-scale_bar!(ax, start_x=0.1, length_x=10.0, start_y=0.1, length_y=5.0)
+scalebar!(ax, origin=(0.1, 0.1), length_x=10.0, length_y=5.0)
 ```
 """
-@recipe(ScaleBar) do scene
-    Attributes(
-        start_x = nothing,
-        length_x = 1.0,
-        start_y = nothing,
-        length_y = 1.0,
-        color = :black,
-        linewidth = 2.0,
-        text_color = :black,
-        fontsize = 12,
-        x_label = nothing,
-        y_label = nothing,
-        offset_ratio = 0.02
-    )
-end
-
-"""
-    Makie.plot!(sb::ScaleBar)
-
-Internal plotting function for ScaleBar recipe. Adds scale bars to the current plot
-based on the specified positions and lengths.
-"""
-function Makie.plot!(sb::ScaleBar)
-    # Get the parent axis
-    ax = sb.parent
+function scalebar!(ax;         
+    origin = (0.0, 0.0),
+    length_x = nothing,
+    length_y = nothing,
+    color = :black,
+    linewidth = 2.0,
+    text_color = :black,
+    fontsize = 12,
+    x_label = nothing,
+    y_label = nothing,
+    offset_x_ratio = 10.0,
+    offset_y_ratio = 0.2
+)
+    x_start, y_start = origin
     
-    # Get current axis limits
-    xlims = ax.finallimits[].origin[1], ax.finallimits[].origin[1] + ax.finallimits[].widths[1]
-    ylims = ax.finallimits[].origin[2], ax.finallimits[].origin[2] + ax.finallimits[].widths[2]
-    
-    # Calculate offsets based on axis ranges
-    x_range = xlims[2] - xlims[1]
-    y_range = ylims[2] - ylims[1]
-    offset = sb.offset_ratio[] * min(x_range, y_range)
-    
-    # Plot x-scale bar if start_x is specified
-    if !isnothing(sb.start_x[])
-        x_start = sb.start_x[]
-        x_end = x_start + sb.length_x[]
-        y_pos = sb.start_y[] === nothing ? ylims[1] + offset : sb.start_y[]
+    # Plot x-scale bar if length_x is specified
+    if !isnothing(length_x)
+        x_end = x_start + length_x
         
-        lines!(sb, [x_start, x_end], [y_pos, y_pos],
-            color = sb.color[],
-            linewidth = sb.linewidth[]
+        lines!(ax, [x_start, x_end], [y_start, y_start],
+            color = color,
+            linewidth = linewidth
         )
         
-        x_label_text = isnothing(sb.x_label[]) ? "$(sb.length_x[])" : sb.x_label[]
-        text!(sb, x_label_text,
-            position = (x_start + sb.length_x[]/2, y_pos - offset),
-            align = (:center, :top),
-            color = sb.text_color[],
-            fontsize = sb.fontsize[]
+        x_label_text = isnothing(x_label) ? "$(length_x)" : x_label
+        text!(ax, x_label_text,
+            position = (x_start + length_x/2, y_start - y_start/offset_x_ratio),
+            align = (:center, :center),
+            color = text_color,
+            fontsize = fontsize
         )
     end
     
-    # Plot y-scale bar if start_y is specified
-    if !isnothing(sb.start_y[])
-        y_start = sb.start_y[]
-        y_end = y_start + sb.length_y[]
-        x_pos = sb.start_x[] === nothing ? xlims[1] + offset : sb.start_x[]
+    # Plot y-scale bar if length_y is specified
+    if !isnothing(length_y)
+        y_end = y_start + length_y
         
-        lines!(sb, [x_pos, x_pos], [y_start, y_end],
-            color = sb.color[],
-            linewidth = sb.linewidth[]
+        lines!(ax, [x_start, x_start], [y_start, y_end],
+            color = color,
+            linewidth = linewidth
         )
         
-        y_label_text = isnothing(sb.y_label[]) ? "$(sb.length_y[])" : sb.y_label[]
-        text!(sb, y_label_text,
-            position = (x_pos - offset, y_start + sb.length_y[]/2),
-            align = (:right, :center),
-            color = sb.text_color[],
-            fontsize = sb.fontsize[],
-            rotation = -pi/2 # Makie uses radians for rotation
+        y_label_text = isnothing(y_label) ? "$(length_y)" : y_label
+        text!(ax, y_label_text,
+            position = (x_start - x_start/offset_y_ratio, y_start + length_y/2),
+            align = (:center, :center),
+            color = text_color,
+            fontsize = fontsize,
+            rotation = pi/2  # Makie uses radians for rotation
         )
     end
     
-    return sb
+    return ax
 end
+
+# Export the function
+export scalebar!
