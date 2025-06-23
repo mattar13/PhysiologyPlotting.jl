@@ -334,8 +334,8 @@ function scalebar!(ax;
     linewidth = 2.0,
     text_color = :black,
     fontsize = 12,
-    x_label = nothing,
-    y_label = nothing,
+    xlabel = nothing,
+    ylabel = nothing,
     offset_x_ratio = 10.0,
     offset_y_ratio = 0.2
 )
@@ -368,7 +368,7 @@ function scalebar!(ax;
             linewidth = linewidth
         )
         
-        y_label_text = isnothing(y_label) ? "$(length_y)" : y_label
+        y_label_text = isnothing(ylabel) ? "$(length_y)" : ylabel
         text!(ax, y_label_text,
             position = (x_start - x_start/offset_y_ratio, y_start + length_y/2),
             align = (:center, :center),
