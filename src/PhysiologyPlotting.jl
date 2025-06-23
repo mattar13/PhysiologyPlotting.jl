@@ -28,8 +28,8 @@ function __init__()
           @require PhysiologyAnalysis = "123dc426-2d49-4783-ab3e-573ab3c498a8" begin
                using .PhysiologyAnalysis
                import .PhysiologyAnalysis: get_fit_parameters, get_significant_rois
-               include("PlottingFunctions/ROIVisualization.jl")
-               export plot_roi_analysis, plot_roi_analysis_averaged, plot_roi_analysis_stitched, plot_analysis, plot_fulltime_analysis, get_significant_traces, get_significant_traces_matrix
+               # include("PlottingFunctions/ROIVisualization.jl")
+               # export plot_roi_analysis, plot_roi_analysis_averaged, plot_roi_analysis_stitched, plot_analysis, plot_fulltime_analysis, get_significant_traces, get_significant_traces_matrix
           end
      end
 
@@ -51,8 +51,8 @@ function __init__()
                using .PhysiologyAnalysis
                import .PhysiologyAnalysis: get_fit_parameters, get_significant_rois
                import .PhysiologyAnalysis: baseline_trace
-               include("PlottingFunctions/ROIVisualization.jl")
-               export plot_roi_analysis
+               # include("PlottingFunctions/ROIVisualization.jl")
+               # export plot_roi_analysis
           end
      end
 

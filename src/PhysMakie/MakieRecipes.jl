@@ -293,6 +293,7 @@ end
 # Export the function
 export stimulustiming!
 
+@info "MakieRecipes.jl loaded at $(time())"
 """
     scalebar!(ax; origin=(0.0, 0.0), length_x=nothing, length_y=nothing,
              color=:black, linewidth=2.0, text_color=:black, fontsize=12,
@@ -336,8 +337,9 @@ function scalebar!(ax;
     fontsize = 12,
     xlabel = nothing,
     ylabel = nothing,
-    offset_x_ratio = 10.0,
-    offset_y_ratio = 0.2
+    xlabel_addon = "ms", ylabel_addon = "dff",
+    pixel_offset_x = 20,  # Distance in pixels from scale bar
+    pixel_offset_y = 20   # Distance in pixels from scale bar
 )
     x_start, y_start = origin
     
@@ -350,12 +352,15 @@ function scalebar!(ax;
             linewidth = linewidth
         )
         
-        x_label_text = isnothing(xlabel) ? "$(length_x)" : xlabel
+        x_label_text = isnothing(xlabel) ? "$(length_x)$xlabel_addon" : "$xlabel$xlabel_addon"
+        
+        # Use pixel coordinates for text positioning
         text!(ax, x_label_text,
-            position = (x_start + length_x/2, y_start - y_start/offset_x_ratio),
-            align = (:center, :center),
+            position = (x_start + length_x/2, y_start),  # Center horizontally on scale bar
+            align = (:center, :center),  # Align to top so we can offset downward
             color = text_color,
-            fontsize = fontsize
+            fontsize = fontsize,
+            offset = (0, -pixel_offset_y)  # Offset downward by pixel_offset_y pixels
         )
     end
     
@@ -368,13 +373,16 @@ function scalebar!(ax;
             linewidth = linewidth
         )
         
-        y_label_text = isnothing(ylabel) ? "$(length_y)" : ylabel
+        y_label_text = isnothing(ylabel) ? "$(length_y)$ylabel_addon" : "$ylabel$ylabel_addon"
+        
+        # Use pixel coordinates for text positioning
         text!(ax, y_label_text,
-            position = (x_start - x_start/offset_y_ratio, y_start + length_y/2),
-            align = (:center, :center),
+            position = (x_start, y_start + length_y/2),  # Center vertically on scale bar
+            align = (:center, :center),  # Align to right so we can offset leftward
             color = text_color,
             fontsize = fontsize,
-            rotation = pi/2  # Makie uses radians for rotation
+            rotation = pi/2,  # Makie uses radians for rotation
+            offset = (-pixel_offset_x, 0)  # Offset leftward by pixel_offset_x pixels
         )
     end
     
