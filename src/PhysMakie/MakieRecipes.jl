@@ -350,7 +350,7 @@ function scalebar!(ax;
             linewidth = linewidth
         )
         
-        x_label_text = isnothing(x_label) ? "$(length_x)" : x_label
+        x_label_text = isnothing(xlabel) ? "$(length_x)" : xlabel
         text!(ax, x_label_text,
             position = (x_start + length_x/2, y_start - y_start/offset_x_ratio),
             align = (:center, :center),
